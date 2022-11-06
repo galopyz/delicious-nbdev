@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "delicious-nbdev"
+  site-url: "https://galopyz.github.io/delicious-nbdev"
+  description: "Just one more bite..."
+  repo-branch: main
+  repo-url: "https://github.com/galopyz/delicious-nbdev"

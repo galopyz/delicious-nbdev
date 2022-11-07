@@ -5,5 +5,10 @@ d = { 'settings': { 'branch': 'main',
                 'doc_host': 'https://galopyz.github.io',
                 'git_url': 'https://github.com/galopyz/delicious-nbdev',
                 'lib_path': 'delicious_nbdev'},
-  'syms': { 'delicious_nbdev.Sandwich': { 'delicious_nbdev.Sandwich.slice_bread': ( 'sandwich.html#slice_bread',
-                                                                                    'delicious_nbdev/Sandwich.py')}}}
+  'syms': { 'delicious_nbdev.Sandwich': { 'delicious_nbdev.Sandwich.Sandwich': ('sandwich.html#sandwich', 'delicious_nbdev/Sandwich.py'),
+                                          'delicious_nbdev.Sandwich.Sandwich.__eq__': ( 'sandwich.html#sandwich.__eq__',
+                                                                                        'delicious_nbdev/Sandwich.py'),
+                                          'delicious_nbdev.Sandwich.Sandwich.__init__': ( 'sandwich.html#sandwich.__init__',
+                                                                                          'delicious_nbdev/Sandwich.py'),
+                                          'delicious_nbdev.Sandwich.Sandwich.__str__': ( 'sandwich.html#sandwich.__str__',
+                                                                                         'delicious_nbdev/Sandwich.py')}}}

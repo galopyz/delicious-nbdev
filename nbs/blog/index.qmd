@@ -1,0 +1,10 @@
+---
+title: Delicious Blog
+subtitle: Creating different projects using Jupyter notebook
+listing:
+  contents: posts
+  sort: "date desc"
+  sort-ui: false
+  filter-ui: false
+  categories: true
+---

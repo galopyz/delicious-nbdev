@@ -11,10 +11,11 @@ pip install delicious_nbdev
 
 ## How to use
 
-I can slice bread like this. Very easy.
+It’s very easy to make a sandwich.
 
 ``` python
-slice_bread(2)
+sandwich = Sandwich(0,1,1)
+sandwich
 ```
 
-    '2 slices of bread.'
+    A ham sandwich with potato bread and cheddar cheese.

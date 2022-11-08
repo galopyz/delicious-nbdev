@@ -6,3 +6,15 @@ website:
       - section: blog
         contents:
           - blog/index.qmd
+          - section: posts
+            contents:
+              - section: 2022-11-07-alien-vs.-ghost-pt1
+                contents:
+                  - blog/posts/2022-11-07-alien-vs.-ghost-pt1/index.ipynb
+      - section: blog
+        contents:
+          - section: posts
+            contents:
+              - section: 2022-11-07-alien-vs.-ghost-pt1
+                contents:
+                  - blog/posts/2022-11-07-alien-vs.-ghost-pt1/idx.qmd

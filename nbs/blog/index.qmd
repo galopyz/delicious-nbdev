@@ -7,4 +7,8 @@ listing:
   sort-ui: false
   filter-ui: false
   categories: true
+  feed: true
+website:
+  site-url: "https://galopyz.github.io/delicious-nbdev/"
+page-layout: full
 ---

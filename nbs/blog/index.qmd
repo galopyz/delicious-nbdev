@@ -11,4 +11,7 @@ listing:
 website:
   site-url: "https://galopyz.github.io/delicious-nbdev/"
 page-layout: full
+comments:
+  utterances:
+    repo: galopyz/delicious-nbdev
 ---

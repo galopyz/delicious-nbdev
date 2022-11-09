@@ -11,4 +11,6 @@ d = { 'settings': { 'branch': 'main',
                                           'delicious_nbdev.Sandwich.Sandwich.__init__': ( 'sandwich.html#sandwich.__init__',
                                                                                           'delicious_nbdev/Sandwich.py'),
                                           'delicious_nbdev.Sandwich.Sandwich.__str__': ( 'sandwich.html#sandwich.__str__',
-                                                                                         'delicious_nbdev/Sandwich.py')}}}
+                                                                                         'delicious_nbdev/Sandwich.py')},
+            'delicious_nbdev.app': { 'delicious_nbdev.app.classify_images': ( 'blog/posts/2022-11-09-alien-vs.-ghost-pt2/index.html#classify_images',
+                                                                              'delicious_nbdev/app.py')}}}

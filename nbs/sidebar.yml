@@ -15,6 +15,6 @@ website:
         contents:
           - section: posts
             contents:
-              - section: 2022-11-07-alien-vs.-ghost-pt1
+              - section: 2022-11-09-alien-vs.-ghost-pt2
                 contents:
-                  - blog/posts/2022-11-07-alien-vs.-ghost-pt1/idx.qmd
+                  - blog/posts/2022-11-09-alien-vs.-ghost-pt2/index.ipynb

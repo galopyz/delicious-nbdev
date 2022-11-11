@@ -3,6 +3,7 @@ website:
     contents:
       - index.ipynb
       - 00_sandwich.ipynb
+      - 01_playing_around.ipynb
       - section: blog
         contents:
           - blog/index.qmd
@@ -15,6 +16,6 @@ website:
         contents:
           - section: posts
             contents:
-              - section: 2022-11-09-alien-vs.-ghost-pt2
+              - section: 2022-11-11-alien-vs.-ghost-pt2
                 contents:
-                  - blog/posts/2022-11-09-alien-vs.-ghost-pt2/index.ipynb
+                  - blog/posts/2022-11-11-alien-vs.-ghost-pt2/index.ipynb

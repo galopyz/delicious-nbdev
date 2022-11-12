@@ -19,3 +19,10 @@ website:
               - section: 2022-11-11-alien-vs.-ghost-pt2
                 contents:
                   - blog/posts/2022-11-11-alien-vs.-ghost-pt2/index.ipynb
+      - section: blog
+        contents:
+          - section: posts
+            contents:
+              - section: 2022-11-12-live_coding1
+                contents:
+                  - blog/posts/2022-11-12-live_coding1/index.ipynb

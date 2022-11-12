@@ -3,16 +3,16 @@
 # %% auto 0
 __all__ = ['meat', 'bread', 'cheese', 'Sandwich']
 
-# %% ../nbs/00_sandwich.ipynb 2
+# %% ../nbs/00_sandwich.ipynb 3
 from fastcore.test import *
 from fastcore.utils import *
 
-# %% ../nbs/00_sandwich.ipynb 6
+# %% ../nbs/00_sandwich.ipynb 7
 meat = ["ham", "turkey"]
 bread = ["white", "potato"]
 cheese = ["pepprjack", "cheddar"]
 
-# %% ../nbs/00_sandwich.ipynb 21
+# %% ../nbs/00_sandwich.ipynb 22
 class Sandwich:
     "A sandwich with `meat`, `bread`, and `cheese`."
     def __init__(self,
@@ -28,7 +28,7 @@ class Sandwich:
     
     __repr__ = __str__
 
-# %% ../nbs/00_sandwich.ipynb 25
+# %% ../nbs/00_sandwich.ipynb 26
 @patch
 def __eq__(self:Sandwich, a:Sandwich):
     return (self.meat, self.bread, self.cheese) == (a.meat, a.bread, a.cheese)

@@ -14,12 +14,27 @@ website:
   navbar:
     background: primary
     search: true
+    collapse-below: lg
     left:
       - text: "Home"
         href: index.ipynb
       - text: "Blog"
         href: blog/index.qmd
+    right:
+      - icon: github
+        href: "https://github.com/galopyz/delicious-nbdev"
   sidebar:
-    style: floating
+    style: "docked"
+    contents:
+      - auto: "/*.ipynb"
+      - section: "Playground"
+        contents:
+          - index.ipynb
+          - 00_sandwich.ipynb
+      - section: "Blog"
+        contents:
+          - blog/posts/2022-11-12-live_coding1/index.ipynb
+          - blog/posts/2022-11-11-alien-vs.-ghost-pt2/index.ipynb
+          - blog/posts/2022-11-07-alien-vs.-ghost-pt1/index.ipynb
 
-metadata-files: [nbdev.yml, sidebar.yml]
+metadata-files: [nbdev.yml]

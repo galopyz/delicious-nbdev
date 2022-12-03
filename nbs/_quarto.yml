@@ -33,6 +33,7 @@ website:
           - 00_sandwich.ipynb
       - section: "Blog"
         contents:
+          - blog/posts/2022-12-03-live_coding7/index.ipynb
           - blog/posts/2022-11-30-live_coding6/index.ipynb
           - blog/posts/2022-11-27-live_coding5/index.ipynb
           - blog/posts/2022-11-16-live_coding4/index.ipynb

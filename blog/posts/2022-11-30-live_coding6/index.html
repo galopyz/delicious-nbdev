@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="galopy">
+<meta name="dcterms.date" content="2022-11-30">
+
+<title>delicious-nbdev - Live coding 6</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
+<meta property="og:title" content="delicious-nbdev - Live coding 6">
+<meta property="og:description" content="In this blog, I will cover how to setup mamba and bash_history in Paperspace. We also will go over a bit of fastbook and some terminal commands.">
+<meta property="og:site-name" content="delicious-nbdev">
+<meta name="twitter:title" content="delicious-nbdev - Live coding 6">
+<meta name="twitter:description" content="In this blog, I will cover how to setup mamba and bash_history in Paperspace. We also will go over a bit of fastbook and some terminal commands.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">delicious-nbdev</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../index.html" aria-current="page">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../blog/index.html">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/galopyz/delicious-nbdev"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Live coding 6</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../sandwich.html" class="sidebar-item-text sidebar-link">Sandwich</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Playground</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../index.html" class="sidebar-item-text sidebar-link">delicious-nbdev</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../sandwich.html" class="sidebar-item-text sidebar-link">Sandwich</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Blog</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-07-saving_jupyter_config/index.html" class="sidebar-item-text sidebar-link">Saving Jupyter configuration on Paperspace.</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-06-paddy1/index.html" class="sidebar-item-text sidebar-link">Intro to Paddy competition</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-03-live_coding7/index.html" class="sidebar-item-text sidebar-link">Live coding 7</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-30-live_coding6/index.html" class="sidebar-item-text sidebar-link active">Live coding 6</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-27-live_coding5/index.html" class="sidebar-item-text sidebar-link">Live coding 5</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-16-live_coding4/index.html" class="sidebar-item-text sidebar-link">Live coding 4</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-15-live_coding3/index.html" class="sidebar-item-text sidebar-link">Live coding 3</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-14-live_coding2/index.html" class="sidebar-item-text sidebar-link">Live coding 2</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-12-live_coding1/index.html" class="sidebar-item-text sidebar-link">Live coding 1</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-11-alien-vs.-ghost-pt2/index.html" class="sidebar-item-text sidebar-link">Alien vs.&nbsp;Ghost Pt.2 Deploying</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-07-alien-vs.-ghost-pt1/index.html" class="sidebar-item-text sidebar-link">Alien vs.&nbsp;Ghost Pt.1 Training</a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#live-coding-6" id="toc-live-coding-6" class="nav-link active" data-scroll-target="#live-coding-6">Live coding 6</a>
+  <ul class="collapse">
+  <li><a href="#mamba" id="toc-mamba" class="nav-link" data-scroll-target="#mamba">Mamba</a></li>
+  <li><a href="#bash-history" id="toc-bash-history" class="nav-link" data-scroll-target="#bash-history">Bash history</a></li>
+  <li><a href="#fastbook-setup" id="toc-fastbook-setup" class="nav-link" data-scroll-target="#fastbook-setup">Fastbook setup</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/galopyz/delicious-nbdev/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Live coding 6</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>galopy </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 30, 2022</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="live-coding-6" class="level1">
+<h1>Live coding 6</h1>
+<p>In this blog, I will cover how to setup mamba and bash_history in Paperspace. We also will go over a bit of fastbook and some terminal commands.</p>
+<p>This blog is based on Live coding 6 <a href="https://www.youtube.com/watch?v=V3cN-bqFUh4&amp;list=PLfYUBJiXbdtSLBPJ1GMx-sQWf6iNhb8mM&amp;index=6&amp;t=3801s&amp;ab_channel=JeremyHoward">Youtube video</a>. There’s been some changes to Paperspace since the video is recorded. For instance, <code>mamba</code> is available now, so it’s easier to setup. Let’s dive in.</p>
+<section id="mamba" class="level2">
+<h2 class="anchored" data-anchor-id="mamba">Mamba</h2>
+<p>So, we want to intall universal-ctags, but it’s not available on pip because it’s not really a python thing. We can install it with a package manager, but it won’t be available after we restart Paperspace instance. Are we out of luck? No! Thankfully, we can use <code>mamba</code>! We can use <code>-p</code> to specify where to install <a href="https://anaconda.org/conda-forge/universal-ctags">universal-ctags</a>, and we can make it persistent.</p>
+<p>These are the steps.</p>
+<ol class="example" type="1">
+<li>Open up terminal in Paperspace.</li>
+<li><code>cd</code>: Change directory to home directory (/root/)</li>
+<li><code>mkdir conda</code>: We create conda directory here so that we can install packages in this directory.</li>
+<li><code>mamba install -p ~/conda universal-ctags</code>: We are using <code>mamba</code> with <code>-p ~/conda</code>. With <code>-p</code>, we specify where to install the package and <code>~/conda</code> is same as <code>/root/conda</code> in this case. <code>~</code> is short for home directory, which is <code>/root/</code>.</li>
+<li>Follow the prompt, and we have ctags installed.</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="conda1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Mamba install</figcaption><p></p>
+</figure>
+</div>
+<p>Next thing is to add this to our <code>PATH</code> environment variable. We can check our environment variable with <code>echo</code> command. With <code>echo $PATH</code>, we can take a look. Then, type <code>export PATH=~/conda/bin:$PATH</code>. This updates our shell’s <code>PATH</code> environment variable to include ~/conda/bin. If you are curious, take a look at what’s inside of conda directory.</p>
+<p>So, let’s try if ctags is installed correctly. Try <code>ctags --version</code>.</p>
+<p>This is what it should look like:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="ctags2.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Correct ctags version</figcaption><p></p>
+</figure>
+</div>
+<p>If your looks something like this, it’s not installed correctly. This is from Emacs:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="ctags1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Wrong ctags version</figcaption><p></p>
+</figure>
+</div>
+<p>If you forgot how to use ctags, check out <a href="../../../blog/posts/2022-11-27-live_coding5/#ctags"><code>Live coding 5</code></a>.</p>
+<p>Cool. This is working for now, but ctags will not be available if we restart our instance. To make this available persistently, we have to do some work. Let’s take care of our environment variable first. Rather than typing <code>export PATH=~/conda/bin:$PATH</code> every single time we start our instance, we can create <code>.bash.local</code> file inside of <code>/storage/</code>. This file will be run when the instance starts. This is what mine look like:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="bash.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">My <code>/storage/.bash.local</code> file</figcaption><p></p>
+</figure>
+</div>
+<p>First line is for conda and second line is for pip. Last line creates an alias so that I can type <code>piu</code> instead of <code>pip install --user</code>.</p>
+<div class="callout-warning callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Space is not allowed between = and words. This will not work. You have to type similar to mine.</p>
+</div>
+</div>
+<p>Let’s move on to the next steps:</p>
+<ol start="6" class="example" type="1">
+<li><code>mv conda/ /storage/cfg/</code>: Move the conda directory into our permanent storage location.</li>
+<li><code>ln -s /storage/cfg/conda</code>: Create a symlink from the moved directory to here.</li>
+<li><code>ctags --version</code>: Test it again.</li>
+<li>Now, add <code>ln -s /storage/cfg/conda</code> to <code>/storage/pre-run.sh</code> in order to make conda packages available even after restarting the instance.</li>
+</ol>
+<p>Now we are set with conda packages. But how big is the conda directory? How much disk space does it use? Because we have limited space, it’s good to check this with <code>du -sh</code> command. This command roughly means disk usage (du) with summary (s) and human readable (h) options. Change directory to conda directory and try it. We can also do <code>du -sh *</code> to see list each directory with sizes.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="du.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption"><code>du -sh *</code></figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="bash-history" class="level2">
+<h2 class="anchored" data-anchor-id="bash-history">Bash history</h2>
+<p>Whenever we type command on terminal, it is saved. We can press up arrow and down arrow to refer back to our command history. We can type <code>history</code> to look at them. Basically, all the history is stored at <code>~/.bash_history</code> file. Take a look.</p>
+<p>To make our Paperspace instance feel more user friendly, we can save our bash command history so that we can refer back to our history before we closed the instance.</p>
+<ol type="1">
+<li><code>cd</code>: Move to home directory.</li>
+<li><code>mv .bash_history /storage/cfg</code>: Move the .bash_history file into <code>/storage/cfg/</code> directory.</li>
+<li><code>ln -s /storage/cfg/.bash_history</code>: Create a symlink.</li>
+</ol>
+<p>Now we just have to update our <code>pre-run.sh</code> file. Here’s what mine looks like so far. Same thing here like we did before with .local/. We delete .bash_history if system generated one at this point. Then make the symlink.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="bash2.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">pre-run.sh</figcaption><p></p>
+</figure>
+</div>
+<p>Now, if you want the history to work, make sure to close the terminal with <code>Ctrl-d</code> before shutting down the instance. I noticed that history does not get saved if I just shut down the instance.</p>
+</section>
+<section id="fastbook-setup" class="level2">
+<h2 class="anchored" data-anchor-id="fastbook-setup">Fastbook setup</h2>
+<p>Next thing we will cover is setting up <a href="https://github.com/fastai/fastbook">fastbook</a>. We will add this into our <code>/notebooks/</code> so that we can have this permanently. Easy way to do it is simply go <code>/notebooks/</code> directory and type <code>git clone https://github.com/fastai/fastbook.git</code>. However, we can fork this repo first. On the fastbook github page, click <em>fork</em> to get a copy of the repo. It is located on the top right side of the page.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="fork.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">forking a repo</figcaption><p></p>
+</figure>
+</div>
+<p>Then use <code>git clone</code> to clone it inside of Paperspace. In order to use git to actually commit to GitHub, we have to setup .gitconfig file. Type <code>git config --global user.name "yourname"</code> and <code>git config --global user.email "youremail"</code> to setup them. Now, the same thing. To make this persistent, we have to move this file to <code>/storage/cfg</code> and create a symlink. Here are the steps:</p>
+<ul>
+<li><code>git config --global user.name "yourname"</code></li>
+<li><code>git config --global user.email "youremail"</code></li>
+<li><code>mv ~/.gitconfig /storage/cfg/</code></li>
+<li><code>ln -s /storage/cfg/.gitconfig</code></li>
+</ul>
+<p>Now, our gitconfig is complete.</p>
+<p>Let’s go over some fastbook stuff now. We will see this code block when we look at the book:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastai.vision.<span class="bu">all</span> <span class="im">import</span> <span class="op">*</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This means we are importing everything (*) from <em>fastai/vision/all.py</em> module. See how <strong>.</strong> changes to <strong>/</strong>? We can take a look at this file if we want to. Now, we know where to look when we encounter this stuff in our book to dig deeper.</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+<code>vim</code> command tips
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In <code>vim</code>, we can type <code>*</code> on a word to move the cursor to next occurance of it. Typing <code>Ctrl-p</code> while typing a word can fill the rest of the word like auto completion. The word has to be used before.</p>
+</div>
+</div>
+</div>
+<p>Another thing we find a lot is <code>path</code>. It is made with <a href="https://docs.python.org/3/library/pathlib.html">Pathlib</a> from python standard library.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> untar_data(URLs.MNIST_SAMPLE)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>path</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>Path('/home/kappa/.fastai/data/mnist_sample')</code></pre>
+</div>
+</div>
+<p>It is upgraded with fastai, so we can use <code>ls</code> method to look at files and directories within this path.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>path.ls()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>(#3) [Path('/home/kappa/.fastai/data/mnist_sample/labels.csv'),Path('/home/kappa/.fastai/data/mnist_sample/train'),Path('/home/kappa/.fastai/data/mnist_sample/valid')]</code></pre>
+</div>
+</div>
+<p>Another useful feature from <code>path</code> is <code>Path.BASE_PATH</code>. This can simplify our path by setting the base path.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Path.BASE_PATH <span class="op">=</span> path</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>path.ls()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>(#3) [Path('labels.csv'),Path('train'),Path('valid')]</code></pre>
+</div>
+</div>
+<p>See how simple and readable it is now?</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Now our environment is setup so that we can read fastbook and commit changes to our forked repo. Committing to a forked repo is optional because paperspace will keep the notebooks. However, I like backing up my work at GitHub just in case I want to work on my local computer.</p>
+<p>If you want to dig deeper, you can watch the <a href="https://www.youtube.com/watch?v=V3cN-bqFUh4&amp;list=PLfYUBJiXbdtSLBPJ1GMx-sQWf6iNhb8mM&amp;index=6&amp;t=3801s&amp;ab_channel=JeremyHoward">video</a> this blog is based on.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="galopyz/delicious-nbdev" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

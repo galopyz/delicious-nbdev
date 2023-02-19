@@ -33,6 +33,7 @@ website:
           - 00_sandwich.ipynb
       - section: "Blog"
         contents:
+          - blog/posts/2023-02-19-MNIST_FastAI/index.ipynb
           - blog/posts/2022-12-07-saving_jupyter_config/index.ipynb
           - blog/posts/2022-12-06-paddy1/index.ipynb
           - blog/posts/2022-12-03-live_coding7/index.ipynb

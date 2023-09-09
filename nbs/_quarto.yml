@@ -33,6 +33,7 @@ website:
           - 00_sandwich.ipynb
       - section: "Blog"
         contents:
+          - blog/posts/2023-09-09-Learner_part_2/index.ipynb
           - blog/posts/2023-08-30-Learner_part_1/index.ipynb
           - blog/posts/2023-08-25-Callbacks/index.ipynb
           - blog/posts/2023-07-08-Hugging-Face-Features/index.ipynb

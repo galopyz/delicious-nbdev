@@ -5,26 +5,6 @@ delicious-nbdev
 
 <div>
 
-> **Not a useful library**
->
-> This is just a place for me to play around with python, jupyter
-> notebook, nbdev, quarto, and pypi.
+I am Jay Suh, and this is my personal [blog](https://galopyz.github.io/delicious-nbdev/blog/).
 
-</div>
-
-## Install
-
-``` sh
-pip install delicious_nbdev
-```
-
-## How to use
-
-It’s very easy to make a sandwich.
-
-``` python
-sandwich = Sandwich(0,1,1)
-sandwich
-```
-
-    A ham sandwich with potato bread and cheddar cheese.
+I write about deep learning, machine learning, genetics, and anything else I like.

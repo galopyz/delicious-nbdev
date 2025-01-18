@@ -33,6 +33,7 @@ website:
           - 00_sandwich.ipynb
       - section: "Blog"
         contents:
+          - blog/posts/2025-01-17-how_to_solve_it/index.ipynb
           - blog/posts/2024-01-16-Resnet_part2/index.ipynb
           - blog/posts/2024-01-13-MiniAI_utilities/index.ipynb
           - blog/posts/2023-12-04-Resnet/index.ipynb

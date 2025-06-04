@@ -27,10 +27,6 @@ website:
     style: "docked"
     contents:
       - auto: "/*.ipynb"
-      - section: "Playground"
-        contents:
-          - index.ipynb
-          - 00_sandwich.ipynb
       - section: "Blog"
         contents:
           - blog/posts/2025-06-03-instruct_gpt/index.ipynb

@@ -33,6 +33,7 @@ website:
           - 00_sandwich.ipynb
       - section: "Blog"
         contents:
+          - blog/posts/2025-06-03-instruct_gpt/index.ipynb
           - blog/posts/2025-02-23-bllms_2/index.ipynb
           - blog/posts/2025-02-14-bllms_1/index.ipynb
           - blog/posts/2025-02-09-computational_biology/index.ipynb

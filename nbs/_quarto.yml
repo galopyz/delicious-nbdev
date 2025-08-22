@@ -29,6 +29,7 @@ website:
       - auto: "/*.ipynb"
       - section: "Blog"
         contents:
+          - blog/posts/2025-08-21-my-experience-with-solveit/index.ipynb
           - blog/posts/2025-07-17-pass@k/index.ipynb
           - blog/posts/2025-07-05-gemini_tutorial/index.ipynb
           - blog/posts/2025-06-03-instruct_gpt/index.ipynb

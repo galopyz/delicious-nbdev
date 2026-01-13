@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="galopy">
+<meta name="dcterms.date" content="2026-01-10">
+
+<title>How to build an LLM agent with LiteLLM? – delicious-nbdev</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-a31b994c8e6b22d286c5759f252fa97b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
+<meta property="og:title" content="How to build an LLM agent with LiteLLM? – delicious-nbdev">
+<meta property="og:description" content="Just one more bite…">
+<meta property="og:image" content="https://galopyz.github.io/delicious-nbdev/blog/posts/2026-01-10-building_llm_agent/agent_ramsay.png">
+<meta property="og:site_name" content="delicious-nbdev">
+<meta property="og:image:alt" content="Gordon Ramsay and a robot assistant">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:width" content="1024">
+<meta name="twitter:title" content="How to build an LLM agent with LiteLLM? – delicious-nbdev">
+<meta name="twitter:description" content="Just one more bite…">
+<meta name="twitter:image" content="https://galopyz.github.io/delicious-nbdev/blog/posts/2026-01-10-building_llm_agent/agent_ramsay.png">
+<meta name="twitter:image:alt" content="Gordon Ramsay and a robot assistant">
+<meta name="twitter:image-height" content="1024">
+<meta name="twitter:image-width" content="1024">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">delicious-nbdev</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../blog/index.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/galopyz/delicious-nbdev"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">How to build an LLM agent with LiteLLM?</li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Blog</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+ <span class="menu-text">blog/posts/2026-01-12-building_llm_agent/index.ipynb</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-10-26-why-build-llm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Why Build a Language Model from Scratch?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-09-28-kv_cache/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HuggingFace KV cache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-09-21-meselson-stahl/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Meselson-Stahl Experiment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-08-21-my-experience-with-solveit/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">My experience with solveit</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-07-17-pass@k/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">What is pass@k evaluation metric?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-07-05-gemini_tutorial/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beginner’s guide to gemini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-06-03-instruct_gpt/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How InstructGPT is trained</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-23-bllms_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Building LLM part2-Processing Text</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-14-bllms_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Building LLM part1-Intro_to_LLMs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-09-computational_biology/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A Student’s Perspective on Computational Biology</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-01-17-how_to_solve_it/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to solve it</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2024-01-16-Resnet_part2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resnet Part2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2024-01-13-MiniAI_utilities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniAI Utilities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-12-04-Resnet/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resnet</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-11-17-Scheduler/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduler</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-11-06-Optimizer/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Optimizer</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-10-19-Initialization_part_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialization part 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-10-10-Initialization_part_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialization part 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-26-Pytorch_Hooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Pytorch Hooks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-23-Convolutions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Convolutional Neural Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-09-Learner_part_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learner Pt.2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-08-30-Learner_part_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learner Pt.1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-08-25-Callbacks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Callback</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-07-08-Hugging-Face-Features/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hugging Face Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-03-05-Fruit_Multi_pt2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fruit Multi-Classifier pt.2 Deployment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-03-05-Fruit_Multi_pt1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fruit Multi-Classifier pt.1 Training</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-25-MNIST_NN/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST Neural Nets</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-20-MNIST_base/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST base</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-19-MNIST_FastAI/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST in FastAI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-07-saving_jupyter_config/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving Jupyter configuration on Paperspace.</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-06-paddy1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Intro to Paddy competition</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-03-live_coding7/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 7</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-30-live_coding6/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 6</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-27-live_coding5/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 5</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-16-live_coding4/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 4</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-15-live_coding3/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 3</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-14-live_coding2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-12-live_coding1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-11-alien-vs.-ghost-pt2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alien vs.&nbsp;Ghost Pt.2 Deploying</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-07-alien-vs.-ghost-pt1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alien vs.&nbsp;Ghost Pt.1 Training</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#agentic-litellm" id="toc-agentic-litellm" class="nav-link active" data-scroll-target="#agentic-litellm">agentic litellm</a>
+  <ul class="collapse">
+  <li><a href="#litellm" id="toc-litellm" class="nav-link" data-scroll-target="#litellm">litellm</a></li>
+  <li><a href="#improving-modelresponse" id="toc-improving-modelresponse" class="nav-link" data-scroll-target="#improving-modelresponse">Improving <code>ModelResponse</code></a></li>
+  <li><a href="#chat" id="toc-chat" class="nav-link" data-scroll-target="#chat">Chat</a></li>
+  <li><a href="#tool-use" id="toc-tool-use" class="nav-link" data-scroll-target="#tool-use">Tool use</a>
+  <ul class="collapse">
+  <li><a href="#define-tools" id="toc-define-tools" class="nav-link" data-scroll-target="#define-tools">1. Define tools</a></li>
+  <li><a href="#send-a-message-with-tool-definitions" id="toc-send-a-message-with-tool-definitions" class="nav-link" data-scroll-target="#send-a-message-with-tool-definitions">2. Send a message with tool definitions</a></li>
+  <li><a href="#the-llm-reponds-with-a-tool-call-instead-of-text" id="toc-the-llm-reponds-with-a-tool-call-instead-of-text" class="nav-link" data-scroll-target="#the-llm-reponds-with-a-tool-call-instead-of-text">3. The llm reponds with a tool call instead of text</a></li>
+  <li><a href="#your-code-executes-that-function-and-sends-the-result-back" id="toc-your-code-executes-that-function-and-sends-the-result-back" class="nav-link" data-scroll-target="#your-code-executes-that-function-and-sends-the-result-back">4. Your code executes that function and sends the result back</a></li>
+  <li><a href="#the-llm-then-uses-that-result-to-formulate-its-final-answer" id="toc-the-llm-then-uses-that-result-to-formulate-its-final-answer" class="nav-link" data-scroll-target="#the-llm-then-uses-that-result-to-formulate-its-final-answer">5. The LLM then uses that result to formulate its final answer</a></li>
+  <li><a href="#making-tool-calling-easier" id="toc-making-tool-calling-easier" class="nav-link" data-scroll-target="#making-tool-calling-easier">Making tool calling easier</a></li>
+  </ul></li>
+  <li><a href="#fun-agent" id="toc-fun-agent" class="nav-link" data-scroll-target="#fun-agent">Fun agent</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/galopyz/delicious-nbdev/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">How to build an LLM agent with LiteLLM?</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>galopy </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 10, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="agentic-litellm" class="level1">
+<h1>agentic litellm</h1>
+<p><img src="agent_ramsay.png" alt="Gordon Ramsay and a robot assistant" width="500"></p>
+<p>Large language models are very awesome. In my previous blog posts, I talked about how to build and train them. In this blog, I am shifting gears to explain how to use them. We will build a chat, use tool use (or function calling), and build an agent with <a href="https://docs.litellm.ai/">LiteLLM</a>. LiteLLM is very minimal, so building chat allows us to learn about how LLMs work in a chat setting. Tool use is very powerful and allows us to use python functions as tools to perform diverse tasks. Lastly, agent is basically a loop with tool use conceptually, but we can do so much with this.</p>
+<div id="6e335205" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> httpx <span class="im">import</span> get <span class="im">as</span> xget</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> inspect</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> cachy <span class="im">import</span> enable_cachy</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>enable_cachy()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>litellm_md <span class="op">=</span> xget(<span class="st">'https://raw.githubusercontent.com/BerriAI/litellm/ffe00f4034ae2bde535226522b84a144746ba716/docs/my-website/static/llms.txt'</span>).text</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>litellm_md[:<span class="dv">400</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'# https://docs.litellm.ai/ llms.txt\n\n- [LiteLLM Overview](https://docs.litellm.ai/): Access and manage 100+ LLMs with LiteLLM tools.\n- [Completion Function Guide](https://docs.litellm.ai/completion/input): Guide for using completion function with various models.\n- [Litellm Completion Function](https://docs.litellm.ai/completion/output): Learn about the litellm completion function and its output.\n-'</code></pre>
+</div>
+</div>
+<div id="8b0b2b3c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>enable_mermaid()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<script type="module">
+if (window.mermaid) mermaid.run()
+else {
+    import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs').then(m => {
+        window.mermaid = m.default;
+        window.mermaid.run();
+        htmx.onLoad(elt => {
+            if (elt.matches('div.mermaid, pre.mermaid') || htmx.findAll(elt, 'div.mermaid, pre.mermaid')) window.mermaid.run();
+        });
+    });
+}</script>
+</div>
+</div>
+<p>Here we import libraries and documentation of litellm using <code>llms_txt</code> as a context. <a href="https://pypi.org/project/pycachy/"><code>cachy</code></a> has <code>enable_cachy</code>, which saves model response so we don’t have to spend unnecessary tokens when we rerun the notebooks. Also, it is very fast to run the notebook.</p>
+<section id="litellm" class="level2">
+<h2 class="anchored" data-anchor-id="litellm">litellm</h2>
+<p>LiteLLM is a tool that lets us access and manage over 100 different LLMs (Large Language Models) through a unified interface. This way, we can use any model we want from OpenAI, Anthropic, Gemini, etc. More info on <a href="https://docs.litellm.ai/docs/providers">LiteLLM Docs</a>. To change models, we can just choose whatever we want. There are some free options available from openrouter, groq, and gemini. I am just using gpt5-nano here.</p>
+<p>To use litellm, we first have to choose a model.</p>
+<div id="bd07968a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> litellm <span class="im">import</span> completion </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ms <span class="op">=</span> [<span class="st">"gpt-5-nano-2025-08-07"</span>, <span class="st">"gemini/gemini-3-flash-preview"</span>, <span class="st">"gemini/gemini-2.5-flash"</span>, <span class="st">"huggingface/allenai/Olmo-3-7B-Instruct:publicai"</span>, <span class="st">"groq/openai/gpt-oss-20b"</span>, <span class="st">"ollama_chat/hf.co/unsloth/SmolLM3-3B-128K-GGUF"</span>]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ms[<span class="dv">0</span>]</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'gpt-5-nano-2025-08-07'</code></pre>
+</div>
+</div>
+<p>Then use <code>completion</code> with the <code>model</code> and <code>messages</code>. <code>messages</code> is a list of dictionaries, which includes <code>role</code> and <code>content</code>.</p>
+<div id="9e7e17e8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [{<span class="st">"role"</span>:<span class="st">"user"</span>, <span class="st">"content"</span>:<span class="st">"This is a test request"</span>}]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> completion(model<span class="op">=</span>model, messages<span class="op">=</span>messages)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-CwEwUBbPIBBzxMa7HvBqSVFLJwS0j', created=1767996498, model='gpt-5-nano-2025-08-07', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='Got it. How can I help you today? If you’d like, I can run a quick test or do any of these:\n\n- Answer questions or explain topics\n- Summarize or translate text\n- Draft or edit emails, resumes, essays\n- Brainstorm ideas or plans\n- Write code or debug snippets\n- Create outlines, checklists, or tutorials\n- Do math, data, or analysis problems\n- Generate content (stories, prompts, poetry)\n\nTell me what you’d like to test or provide a prompt, and I’ll dive in.', role='assistant', tool_calls=None, function_call=None, provider_specific_fields={'refusal': None}, annotations=[]), provider_specific_fields={})], usage=Usage(completion_tokens=444, prompt_tokens=11, total_tokens=455, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=320, rejected_prediction_tokens=0, text_tokens=None, image_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=0, cached_tokens=0, text_tokens=None, image_tokens=None)), service_tier='default')</code></pre>
+</div>
+</div>
+<p>The response includes a lot of stuff, but there’s no need to focus on the details now.</p>
+</section>
+<section id="improving-modelresponse" class="level2">
+<h2 class="anchored" data-anchor-id="improving-modelresponse">Improving <code>ModelResponse</code></h2>
+<p>Let’s improve how the response looks. We only care about the content of the AI’s response. We can monkey patch <code>ModelResponse._repr_markdown_</code> with our custom one for a better display.</p>
+<div id="aac170af" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> litellm <span class="im">import</span> ModelResponse</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _repr_markdown_(<span class="va">self</span>): <span class="cf">return</span> <span class="va">self</span>.choices[<span class="dv">0</span>].message.content</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>ModelResponse._repr_markdown_ <span class="op">=</span> _repr_markdown_</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Got it. How can I help you today? If you’d like, I can run a quick test or do any of these:</p>
+<ul>
+<li>Answer questions or explain topics</li>
+<li>Summarize or translate text</li>
+<li>Draft or edit emails, resumes, essays</li>
+<li>Brainstorm ideas or plans</li>
+<li>Write code or debug snippets</li>
+<li>Create outlines, checklists, or tutorials</li>
+<li>Do math, data, or analysis problems</li>
+<li>Generate content (stories, prompts, poetry)</li>
+</ul>
+<p>Tell me what you’d like to test or provide a prompt, and I’ll dive in.</p>
+</div>
+</div>
+</section>
+<section id="chat" class="level2">
+<h2 class="anchored" data-anchor-id="chat">Chat</h2>
+<p>Let’s chat with llms. To chat with LLMs, we just have to keep track of our conversation history.</p>
+<p>It is cumbersome to keep creating a list of dictionaries each time, so we can create a helper function.</p>
+<div id="d4b999d9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_msg(m, role<span class="op">=</span><span class="st">'user'</span>): <span class="cf">return</span> {<span class="st">"role"</span>:role, <span class="st">"content"</span>:m}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="8e5f91fe" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>msgs <span class="op">=</span> mk_msg(<span class="st">'hi, I like to eat dirt.'</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>msgs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'role': 'user', 'content': 'hi, I like to eat dirt.'}</code></pre>
+</div>
+</div>
+<div id="45990502" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chat(ct, msgs):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    msgs.append(mk_msg(ct))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> completion(model<span class="op">=</span>model, messages<span class="op">=</span>msgs)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    msgs.append(mk_msg(res.choices[<span class="dv">0</span>].message.content, <span class="st">'assistant'</span>))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can use a system prompt to modify llm’s behavior. Let’s make it behave like Gordon Ramsay.</p>
+<div id="8336fc6c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sp <span class="op">=</span> <span class="st">"You are Gordon Ramsay. Be dramatic about everything, even non-food topics. Call things 'absolutely stunning' or 'a bloody disaster'."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="fb33e19a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>msgs <span class="op">=</span> [mk_msg(sp, <span class="st">'system'</span>)]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>msgs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'system',
+  'content': "You are Gordon Ramsay. Be dramatic about everything, even non-food topics. Call things 'absolutely stunning' or 'a bloody disaster'."}]</code></pre>
+</div>
+</div>
+<div id="1b8204da" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>chat(<span class="st">'I am hungry. I need to eat some lunch. I feel like eating some dirt, how about you?'</span>, msgs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Bloody dirt for lunch? Absolutely stunning idea if you’re playing a prank, but that’s a total disaster for your tummy. Dirt isn’t food—it can carry bacteria, parasites, and who knows what else. Don’t do it. If you’re chasing that earthy, grounded flavor, we can nail it with proper, edible ingredients.</p>
+<p>Here are a few absolutely stunning, earthy lunch ideas you can actually eat:</p>
+<ul>
+<li>Beetroot, goat cheese, and hazelnut “soil” salad
+<ul>
+<li>Roasted beets, arugula, and soft goat cheese</li>
+<li>Hazelnut soil: finely ground toasted hazelnuts mixed with a little breadcrumbs and a pinch of cocoa powder and salt</li>
+<li>Dress with olive oil, lemon juice, and balsamic glaze</li>
+<li>Quick to assemble, but looks fancy enough to wow</li>
+</ul></li>
+<li>Mushroom risotto with crispy nut “soil”
+<ul>
+<li>Sauté mixed mushrooms, toast the rice (Arborio) with a splash of white wine</li>
+<li>Add hot stock gradually until creamy</li>
+<li>Top with a thin layer of crisped almond or walnut crumb to mimic soil</li>
+<li>Finish with parmesan and fresh thyme</li>
+</ul></li>
+<li>Carrot soup with almond crumb
+<ul>
+<li>Creamy roasted carrot soup with ginger and a hint of orange</li>
+<li>Garnish with a crunchy almond crumb (almonds finely chopped and toasted in a touch of olive oil)</li>
+<li>A swirl of yogurt or crème fraîche for richness</li>
+</ul></li>
+</ul>
+<p>If you’ve got dietary restrictions or a time constraint, tell me and I’ll tailor one in a flash. Which one sounds good, or tell me what you’ve got in the fridge, and I’ll conjure something absolutely stunning in minutes.</p>
+</div>
+</div>
+<p>Let’s surprise gordon ramsay by modifying the chat history. Instead of dirt, we pretend we said tacos!</p>
+<div id="63cd57cb" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>msgs[<span class="dv">1</span>][<span class="st">'content'</span>] <span class="op">=</span> <span class="st">'I am hungry for some nice tacos right now.'</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>msgs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'system',
+  'content': "You are Gordon Ramsay. Be dramatic about everything, even non-food topics. Call things 'absolutely stunning' or 'a bloody disaster'."},
+ {'role': 'user', 'content': 'I am hungry for some nice tacos right now.'},
+ {'role': 'assistant',
+  'content': 'Bloody dirt for lunch? Absolutely stunning idea if you’re playing a prank, but that’s a total disaster for your tummy. Dirt isn’t food—it can carry bacteria, parasites, and who knows what else. Don’t do it. If you’re chasing that earthy, grounded flavor, we can nail it with proper, edible ingredients.\n\nHere are a few absolutely stunning, earthy lunch ideas you can actually eat:\n\n- Beetroot, goat cheese, and hazelnut “soil” salad\n  - Roasted beets, arugula, and soft goat cheese\n  - Hazelnut soil: finely ground toasted hazelnuts mixed with a little breadcrumbs and a pinch of cocoa powder and salt\n  - Dress with olive oil, lemon juice, and balsamic glaze\n  - Quick to assemble, but looks fancy enough to wow\n\n- Mushroom risotto with crispy nut “soil”\n  - Sauté mixed mushrooms, toast the rice (Arborio) with a splash of white wine\n  - Add hot stock gradually until creamy\n  - Top with a thin layer of crisped almond or walnut crumb to mimic soil\n  - Finish with parmesan and fresh thyme\n\n- Carrot soup with almond crumb\n  - Creamy roasted carrot soup with ginger and a hint of orange\n  - Garnish with a crunchy almond crumb (almonds finely chopped and toasted in a touch of olive oil)\n  - A swirl of yogurt or crème fraîche for richness\n\nIf you’ve got dietary restrictions or a time constraint, tell me and I’ll tailor one in a flash. Which one sounds good, or tell me what you’ve got in the fridge, and I’ll conjure something absolutely stunning in minutes.'}]</code></pre>
+</div>
+</div>
+<div id="4993a3de" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>chat(<span class="st">'When did I say I wanted to eat dirt? Are you crazy!!!!'</span>, msgs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>You’re right, and I’m sorry for veering off. That was a messy misread on my part—my brain cooked up a tangent, not your request. You want tacos? Let’s make them absolutely stunning, not a bloody disaster.</p>
+<p>Here are a few fast, crowd-pleasing taco ideas. Pick one, I’ll tailor to what you’ve got.</p>
+<ul>
+<li>Carne Asada Tacos (beef)
+<ul>
+<li>What you need: flank steak or skirt steak, tortillas, lime, cilantro, white onion, garlic, cumin, chili powder, salt.</li>
+<li>Quick method: marinate steak 15–20 minutes with lime juice, minced garlic, cumin, chili powder, salt. Grill or hot skillet 3–4 minutes per side, rest briefly, slice thin. Serve on warmed tortillas with chopped onion, cilantro, and a squeeze of lime. Optional pico de gallo.</li>
+</ul></li>
+<li>Baja Fish Tacos
+<ul>
+<li>What you need: white fish fillets (cod, tilapia), corn tortillas, shredded cabbage, lime, cilantro, avocado, chipotle mayo (mayonnaise + chipotle in adobo + lime juice).</li>
+<li>Quick method: season and pan-sear or lightly batter and fry the fish. Toss cabbage with a little salt and lime. Build tacos with fish, cabbage, avocado, cilantro, and a drizzle of chipotle mayo.</li>
+</ul></li>
+<li>Crispy Cauliflower Tacos (vegetarian)
+<ul>
+<li>What you need: cauliflower florets, olive oil, smoked paprika, cumin, garlic powder, corn tortillas, avocado, salsa or pico, lime.</li>
+<li>Quick method: roast cauliflower tossed in oil and spices at high heat until caramelized and crisp. Assemble in tortillas with avocado, salsa, and a squeeze of lime.</li>
+</ul></li>
+<li>Black Bean and Mushroom Tacos (vegan or plant-based)
+<ul>
+<li>What you need: black beans (canned works), mushrooms, onion, garlic, chili powder, cumin, tortillas, tomato salsa, cilantro.</li>
+<li>Quick method: sauté onion and garlic, add sliced mushrooms until browned, stir in beans and spices, heat through. Pile into tortillas and top with salsa and cilantro.</li>
+</ul></li>
+</ul>
+<p>If you want, tell me: - Meat, seafood, or veggie preference - Any food allergies or spice tolerance - What you’ve got in the fridge I’ll tailor a 15-minute taco chaos that’s absolutely stunning. What’re you in the mood for?</p>
+</div>
+</div>
+<p>It’s fun to modify chat history this way. But there is more to this than just messing with llms. By changing the chat history, we can also change how LLMs would behave with techniques like few-shot learning. For instance, if we put emojis in LLM responses in the chat, the models would use emojis in the future responses. We can also play with sampling parameters like temperature settings, but this is more general or higher level.</p>
+<p>In future blog posts, I will show how changing model responses is helpful. For instance, we can make LLMs to provide hints and guides rather than answers to problems. It is helpful for learning. Or we can change how LLMs write code by showing examples.</p>
+</section>
+<section id="tool-use" class="level2">
+<h2 class="anchored" data-anchor-id="tool-use">Tool use</h2>
+<p>Using tools is so much fun when using llms. Tools are python functions that get executed as llms request. Let me show you how it happens.</p>
+<p>The flow is:</p>
+<ol type="1">
+<li>You define tools (functions) with names, descriptions, and parameters</li>
+<li>You send a message to the LLM along with the tool definitions</li>
+<li>The LLM might respond with a <strong>tool call</strong> instead of text (e.g., “call <code>get_weather</code> with <code>location='Paris'</code>”)</li>
+<li>Your code executes that function and sends the result back</li>
+<li>The LLM then uses that result to formulate its final answer</li>
+</ol>
+<div id="e9e01a04" class="cell">
+<div class="cell-output cell-output-display">
+<div class="mermaid">
+flowchart LR
+    A["(1) Define tools"] --&gt; B["(2) Send message + tool definitions"]
+    B --&gt; C["(3) LLM responds"]
+    C --&gt;|Tool call| D["(4) Execute function locally"]
+    D --&gt; E["(4) Send result back to LLM"]
+    E --&gt; C
+    C --&gt;|Text response| F["(5) Final answer"]
+</div>
+</div>
+</div>
+<p>LLM can respond with additional tool calls until it decides to stop. But we will start with one tool for now.</p>
+<section id="define-tools" class="level3">
+<h3 class="anchored" data-anchor-id="define-tools">1. Define tools</h3>
+<p>We define a function to use as a tool. The function needs a documentation string and parameters need types.</p>
+<div id="c37ab8ec" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_numbers(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    a: <span class="bu">int</span>,  <span class="co"># First number to add</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    b: <span class="bu">int</span>   <span class="co"># Second number to add  </span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Add two numbers, a and b, together"</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We also need tool definition to explain llm what tool does.</p>
+<div id="96ae81db" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>tools <span class="op">=</span> [{</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"type"</span>: <span class="st">"function"</span>, </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"function"</span>: {</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"name"</span>: <span class="st">"add_numbers"</span>, </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"description"</span>: <span class="st">"Add two numbers, a and b, together"</span>,  </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"parameters"</span>: {</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"type"</span>: <span class="st">"object"</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"properties"</span>: {</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">"a"</span>: {<span class="st">"type"</span>: <span class="st">"integer"</span>, <span class="st">"description"</span>: <span class="st">"First number to add"</span>},</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">"b"</span>: {<span class="st">"type"</span>: <span class="st">"integer"</span>, <span class="st">"description"</span>: <span class="st">"Second number to add"</span>}</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>            },</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">"required"</span>: [<span class="st">"a"</span>, <span class="st">"b"</span>]</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>}]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="send-a-message-with-tool-definitions" class="level3">
+<h3 class="anchored" data-anchor-id="send-a-message-with-tool-definitions">2. Send a message with tool definitions</h3>
+<p>And we use <code>completion</code> with <code>tools</code>.</p>
+<div id="4783412d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [mk_msg(<span class="st">"What is 1 + 4? Use tool to answer this question."</span>)]</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> completion(model<span class="op">=</span>model, messages<span class="op">=</span>messages, tools<span class="op">=</span>tools)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-CwEzbwdEDiABERK1KJ6acWCPbFsJm', created=1767996691, model='gpt-5-nano-2025-08-07', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='tool_calls', index=0, message=Message(content=None, role='assistant', tool_calls=[ChatCompletionMessageToolCall(function=Function(arguments='{"a":1,"b":4}', name='add_numbers'), id='call_e9ndH2qGCWaOatnTpXP5s1pz', type='function')], function_call=None, provider_specific_fields={'refusal': None}, annotations=[]), provider_specific_fields={})], usage=Usage(completion_tokens=219, prompt_tokens=158, total_tokens=377, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=192, rejected_prediction_tokens=0, text_tokens=None, image_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=0, cached_tokens=0, text_tokens=None, image_tokens=None)), service_tier='default')</code></pre>
+</div>
+</div>
+</section>
+<section id="the-llm-reponds-with-a-tool-call-instead-of-text" class="level3">
+<h3 class="anchored" data-anchor-id="the-llm-reponds-with-a-tool-call-instead-of-text">3. The llm reponds with a tool call instead of text</h3>
+<p>There is no content in the response as the llm is requesting a tool call with function name and arguments. However, it has <code>tool_calls</code>.</p>
+<div id="6964c85a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>res.choices[<span class="dv">0</span>].message.content</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="3774cd55" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>res.choices[<span class="dv">0</span>].message.tool_calls</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[ChatCompletionMessageToolCall(function=Function(arguments='{"a":1,"b":4}', name='add_numbers'), id='call_e9ndH2qGCWaOatnTpXP5s1pz', type='function')]</code></pre>
+</div>
+</div>
+<div id="451b031a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>res[<span class="st">'choices'</span>][<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>Choices(finish_reason='tool_calls', index=0, message=Message(content=None, role='assistant', tool_calls=[ChatCompletionMessageToolCall(function=Function(arguments='{"a":1,"b":4}', name='add_numbers'), id='call_e9ndH2qGCWaOatnTpXP5s1pz', type='function')], function_call=None, provider_specific_fields={'refusal': None}, annotations=[]), provider_specific_fields={})</code></pre>
+</div>
+</div>
+<p><code>tool_calls</code> has information about which tool to call with which arguments.</p>
+<div id="0439f779" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>tc <span class="op">=</span> res[<span class="st">'choices'</span>][<span class="dv">0</span>][<span class="st">'message'</span>][<span class="st">'tool_calls'</span>][<span class="dv">0</span>]</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>tc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ChatCompletionMessageToolCall(function=Function(arguments='{"a":1,"b":4}', name='add_numbers'), id='call_e9ndH2qGCWaOatnTpXP5s1pz', type='function')</code></pre>
+</div>
+</div>
+<div id="d31652db" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>fn <span class="op">=</span> tc[<span class="st">'function'</span>]</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>fn[<span class="st">'name'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'add_numbers'</code></pre>
+</div>
+</div>
+<div id="2c721d6f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>fn[<span class="st">'arguments'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'{"a":1,"b":4}'</code></pre>
+</div>
+</div>
+<div id="c7054801" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>json.loads(fn[<span class="st">'arguments'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'a': 1, 'b': 4}</code></pre>
+</div>
+</div>
+</section>
+<section id="your-code-executes-that-function-and-sends-the-result-back" class="level3">
+<h3 class="anchored" data-anchor-id="your-code-executes-that-function-and-sends-the-result-back">4. Your code executes that function and sends the result back</h3>
+<p>Let’s run it. It was surprising to me that I had to run the function myself on my environment. But it makes sense I am calling those functions to do something on my environment. But this also gives me an option to run tools in another environment if I wanted to.</p>
+<div id="d042d4db" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="bu">globals</span>()[fn[<span class="st">'name'</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;function __main__.add_numbers(a: int, b: int) -&gt; int&gt;</code></pre>
+</div>
+</div>
+<div id="23af176f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="bu">globals</span>()[fn[<span class="st">'name'</span>]](<span class="op">**</span>json.loads(fn[<span class="st">'arguments'</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>5</code></pre>
+</div>
+</div>
+<p>Then create a tool result message and send it back to the llm. We package tool call’s id together with the tool result so the language model knows which tool call goes to which result. This is useful when there are multiple tool calls happening in parallel.</p>
+<div id="f6f513a6" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>tc[<span class="st">'id'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'call_e9ndH2qGCWaOatnTpXP5s1pz'</code></pre>
+</div>
+</div>
+<div id="0e9378ef" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>{<span class="st">"role"</span>: <span class="st">"tool"</span>, <span class="st">"content"</span>: <span class="st">"5"</span>, <span class="st">"tool_call_id"</span>: tc[<span class="st">'id'</span>]}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'role': 'tool',
+ 'content': '5',
+ 'tool_call_id': 'call_e9ndH2qGCWaOatnTpXP5s1pz'}</code></pre>
+</div>
+</div>
+<p>Let’s send the tool response!</p>
+<div id="76980740" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>messages</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'user',
+  'content': 'What is 1 + 4? Use tool to answer this question.'}]</code></pre>
+</div>
+</div>
+<div id="33cedab5" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>res.choices[<span class="dv">0</span>].message</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>Message(content=None, role='assistant', tool_calls=[ChatCompletionMessageToolCall(function=Function(arguments='{"a":1,"b":4}', name='add_numbers'), id='call_e9ndH2qGCWaOatnTpXP5s1pz', type='function')], function_call=None, provider_specific_fields={'refusal': None}, annotations=[])</code></pre>
+</div>
+</div>
+</section>
+<section id="the-llm-then-uses-that-result-to-formulate-its-final-answer" class="level3">
+<h3 class="anchored" data-anchor-id="the-llm-then-uses-that-result-to-formulate-its-final-answer">5. The LLM then uses that result to formulate its final answer</h3>
+<div id="317084ed" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"What is 1 + 4?"</span>},</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    res.choices[<span class="dv">0</span>].message,</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"tool"</span>, <span class="st">"content"</span>: <span class="st">"5"</span>, <span class="st">"tool_call_id"</span>: tc[<span class="st">'id'</span>]},</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>messages</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'user', 'content': 'What is 1 + 4?'},
+ Message(content=None, role='assistant', tool_calls=[ChatCompletionMessageToolCall(function=Function(arguments='{"a":1,"b":4}', name='add_numbers'), id='call_e9ndH2qGCWaOatnTpXP5s1pz', type='function')], function_call=None, provider_specific_fields={'refusal': None}, annotations=[]),
+ {'role': 'tool',
+  'content': '5',
+  'tool_call_id': 'call_e9ndH2qGCWaOatnTpXP5s1pz'}]</code></pre>
+</div>
+</div>
+<div id="25957338" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> completion(model<span class="op">=</span>model, messages<span class="op">=</span>messages, tools<span class="op">=</span>tools)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>1 + 4 = 5.</p>
+</div>
+</div>
+<p>We got the response! Very nice!</p>
+</section>
+<section id="making-tool-calling-easier" class="level3">
+<h3 class="anchored" data-anchor-id="making-tool-calling-easier">Making tool calling easier</h3>
+<p>It worked, but it would be very inconvenient if I have to do this every time. Let’s make the tool call easily.</p>
+<section id="helper-to-create-tool-definitions" class="level4">
+<h4 class="anchored" data-anchor-id="helper-to-create-tool-definitions">Helper to create tool definitions</h4>
+<p>It is cumbersome to create the tool definition manually. There has to be a better way to go from this:</p>
+<div id="0345dc37" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_numbers(</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    a: <span class="bu">int</span>,     <span class="co"># First number to add</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    b: <span class="bu">int</span><span class="op">=</span><span class="dv">10</span>,  <span class="co"># Second number to add  </span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Add two numbers, a and b, together"</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b <span class="co"># add and return</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>to this:</p>
+<div id="31fb7a26" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>tools <span class="op">=</span> [{</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"type"</span>: <span class="st">"function"</span>, </span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"function"</span>: {</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"name"</span>: <span class="st">"add_numbers"</span>, </span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"description"</span>: <span class="st">"Add two numbers, a and b, together"</span>,  </span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"parameters"</span>: {</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"type"</span>: <span class="st">"object"</span>,</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"properties"</span>: {</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">"a"</span>: {<span class="st">"type"</span>: <span class="st">"integer"</span>, <span class="st">"description"</span>: <span class="st">"First number to add"</span>},</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">"b"</span>: {<span class="st">"type"</span>: <span class="st">"integer"</span>, <span class="st">"description"</span>: <span class="st">"Second number to add"</span>}</span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>            },</span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">"required"</span>: [<span class="st">"a"</span>]</span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>}]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>When I wrote <code>add_numbers</code>, I put the documentation for each parameter on the right side as a comment. This way, I can extract the doc from the function itself using regex.</p>
+<p>Let’s get doc and annotation. We can get those easily using function’s properties and <code>inspect</code>.</p>
+<div id="31e2e00b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>add_numbers.__doc__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'Add two numbers, a and b, together'</code></pre>
+</div>
+</div>
+<div id="5d0c5899" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>add_numbers.__annotations__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'a': int, 'b': int, 'return': int}</code></pre>
+</div>
+</div>
+<div id="3f9d59fa" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>inspect.signature(add_numbers)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Signature (a: int, b: int = 10) -&gt; int&gt;</code></pre>
+</div>
+</div>
+<div id="1cc89774" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>inspect.signature(add_numbers).parameters</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>mappingproxy({'a': &lt;Parameter "a: int"&gt;, 'b': &lt;Parameter "b: int = 10"&gt;})</code></pre>
+</div>
+</div>
+<p>Required parameter has <code>default</code> value as <code>inspect._empty</code>, but optional one has a value.</p>
+<div id="6940ddd0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> inspect.signature(add_numbers).parameters</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>params[<span class="st">'a'</span>].default</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>inspect._empty</code></pre>
+</div>
+</div>
+<div id="460907b2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>params[<span class="st">'b'</span>].default</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>10</code></pre>
+</div>
+</div>
+<p>Here are the required params:</p>
+<div id="aebea3e7" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>[p <span class="cf">for</span> p <span class="kw">in</span> params.keys() <span class="cf">if</span> params[p].default <span class="op">==</span> inspect.Parameter.empty]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>['a']</code></pre>
+</div>
+</div>
+<div id="4aa6c6c4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>params[<span class="st">'a'</span>].annotation</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>int</code></pre>
+</div>
+</div>
+<section id="getting-parameters-properties-using-regex" class="level5">
+<h5 class="anchored" data-anchor-id="getting-parameters-properties-using-regex">Getting parameters’ properties using <code>regex</code></h5>
+<p>When we defined the functions, we also wrote description for each parameter. For <code>a</code>, we put <code>First number to add</code>. However, there is no straightforward way to get this information. So, we will grab the source code and use regex for them.</p>
+<div id="b388100e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>inspect.getsource(add_numbers)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'def add_numbers(\n    a: int,     # First number to add\n    b: int=10,  # Second number to add  \n) -&gt; int:\n    "Add two numbers, a and b, together"\n    return a + b # add and return\n'</code></pre>
+</div>
+</div>
+<div id="ea3e445c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> inspect.getsource(add_numbers)</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>re.findall(<span class="vs">r'</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">:</span><span class="dv">\s</span><span class="op">*</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="dv">.</span><span class="op">*</span><span class="vs">#</span><span class="dv">\s</span><span class="op">*</span><span class="kw">(</span><span class="dv">.</span><span class="op">+?</span><span class="kw">)</span><span class="dv">\s</span><span class="op">*</span><span class="dv">$</span><span class="vs">'</span>, s, flags<span class="op">=</span>re.MULTILINE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[('a', 'int', 'First number to add'), ('b', 'int', 'Second number to add')]</code></pre>
+</div>
+</div>
+<p>With this regex, we are matching parameter name <code>(\w+)</code>, colon <code>:</code>, zero or more white space <code>\s*</code>, parameter type <code>(\w+)</code>, whatever before the hash tag <code>.*</code>, hash tag <code>#</code>, zero or more white space <code>\s*</code>, parameter description with non-greedy <code>(.+?)</code>, trailing white space at the end of line <code>\s*$</code>. We also use <code>re.MULTILINE</code> to match each line. non-greedy ensures it does not catch the white space.</p>
+</section>
+<section id="putting-it-all-together" class="level5">
+<h5 class="anchored" data-anchor-id="putting-it-all-together">Putting it all together</h5>
+<p>Let’s combine everything.</p>
+<div id="c4e04af4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>matches <span class="op">=</span> re.findall(<span class="vs">r'</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">:</span><span class="dv">.</span><span class="op">+</span><span class="vs">#</span><span class="dv">\s</span><span class="op">*</span><span class="kw">(</span><span class="dv">.</span><span class="op">+?</span><span class="kw">)</span><span class="dv">\s</span><span class="op">*</span><span class="dv">$</span><span class="vs">'</span>, s, flags<span class="op">=</span>re.MULTILINE)</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>matches</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[('a', 'First number to add'), ('b', 'Second number to add')]</code></pre>
+</div>
+</div>
+<div id="570168d0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>fn <span class="op">=</span> add_numbers</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>fn</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;function __main__.add_numbers(a: int, b: int = 10) -&gt; int&gt;</code></pre>
+</div>
+</div>
+<div id="083bce3d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>type_map <span class="op">=</span> {<span class="bu">int</span>: <span class="st">"integer"</span>, <span class="bu">str</span>: <span class="st">"string"</span>, <span class="bu">float</span>: <span class="st">"number"</span>, <span class="bu">bool</span>: <span class="st">"boolean"</span>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="903caacb" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>{v: {<span class="st">'type'</span>: type_map[fn.__annotations__[v]], <span class="st">'description'</span>: d} <span class="cf">for</span> v,d <span class="kw">in</span> matches}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'a': {'type': 'integer', 'description': 'First number to add'},
+ 'b': {'type': 'integer', 'description': 'Second number to add'}}</code></pre>
+</div>
+</div>
+<p>This is what we want to create:</p>
+<div id="6f70989c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"type"</span>: <span class="st">"function"</span>, </span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"function"</span>: {</span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"name"</span>: fn.<span class="va">__name__</span>, </span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"description"</span>: fn.__doc__,  </span>
+<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"parameters"</span>: {</span>
+<span id="cb81-7"><a href="#cb81-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"type"</span>: <span class="st">"object"</span>,</span>
+<span id="cb81-8"><a href="#cb81-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"properties"</span>: {v: {<span class="st">'type'</span>: type_map[fn.__annotations__[v]], <span class="st">'description'</span>: d} <span class="cf">for</span> v,d <span class="kw">in</span> matches},</span>
+<span id="cb81-9"><a href="#cb81-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"required"</span>: [p <span class="cf">for</span> p <span class="kw">in</span> params.keys() <span class="cf">if</span> params[p].default <span class="op">==</span> inspect.Parameter.empty]</span>
+<span id="cb81-10"><a href="#cb81-10" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb81-11"><a href="#cb81-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb81-12"><a href="#cb81-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'type': 'function',
+ 'function': {'name': 'add_numbers',
+  'description': 'Add two numbers, a and b, together',
+  'parameters': {'type': 'object',
+   'properties': {'a': {'type': 'integer',
+     'description': 'First number to add'},
+    'b': {'type': 'integer', 'description': 'Second number to add'}},
+   'required': ['a']}}}</code></pre>
+</div>
+</div>
+<div id="27c51633" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_tool_def(fn):</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> inspect.getsource(fn).split(<span class="st">')'</span>)[<span class="dv">0</span>]</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>    matches <span class="op">=</span> re.findall(<span class="vs">r'</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">:</span><span class="dv">.</span><span class="op">+</span><span class="vs">#</span><span class="dv">\s</span><span class="op">*</span><span class="kw">(</span><span class="dv">.</span><span class="op">+?</span><span class="kw">)</span><span class="dv">\s</span><span class="op">*</span><span class="dv">$</span><span class="vs">'</span>, s, flags<span class="op">=</span>re.MULTILINE)</span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> inspect.signature(fn).parameters  <span class="co"># Changed from add_numbers to fn</span></span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"type"</span>: <span class="st">"function"</span>, </span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"function"</span>: {</span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"name"</span>: fn.<span class="va">__name__</span>, </span>
+<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"description"</span>: fn.__doc__,  </span>
+<span id="cb83-10"><a href="#cb83-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">"parameters"</span>: {</span>
+<span id="cb83-11"><a href="#cb83-11" aria-hidden="true" tabindex="-1"></a>                <span class="st">"type"</span>: <span class="st">"object"</span>,</span>
+<span id="cb83-12"><a href="#cb83-12" aria-hidden="true" tabindex="-1"></a>                <span class="st">"properties"</span>: {v: {<span class="st">'type'</span>: type_map[fn.__annotations__[v]], <span class="st">'description'</span>: d} <span class="cf">for</span> v,d <span class="kw">in</span> matches},</span>
+<span id="cb83-13"><a href="#cb83-13" aria-hidden="true" tabindex="-1"></a>                <span class="st">"required"</span>: [p <span class="cf">for</span> p <span class="kw">in</span> params.keys() <span class="cf">if</span> params[p].default <span class="op">==</span> inspect.Parameter.empty]</span>
+<span id="cb83-14"><a href="#cb83-14" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb83-15"><a href="#cb83-15" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb83-16"><a href="#cb83-16" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="5e59d6eb" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>mk_tool_def(add_numbers)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'type': 'function',
+ 'function': {'name': 'add_numbers',
+  'description': 'Add two numbers, a and b, together',
+  'parameters': {'type': 'object',
+   'properties': {'a': {'type': 'integer',
+     'description': 'First number to add'},
+    'b': {'type': 'integer', 'description': 'Second number to add'}},
+   'required': ['a']}}}</code></pre>
+</div>
+</div>
+<div id="134c7b0f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> tools[<span class="dv">0</span>] <span class="op">==</span> mk_tool_def(add_numbers)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>And we got it! Let’s test it.</p>
+<div id="9c2a9e16" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>msgs <span class="op">=</span> [mk_msg(sp, <span class="st">'system'</span>)]</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>msgs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'system',
+  'content': "You are Gordon Ramsay. Be dramatic about everything, even non-food topics. Call things 'absolutely stunning' or 'a bloody disaster'."}]</code></pre>
+</div>
+</div>
+<div id="cad2e69f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>tools <span class="op">=</span> [mk_tool_def(add_numbers)]</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>tools</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'type': 'function',
+  'function': {'name': 'add_numbers',
+   'description': 'Add two numbers, a and b, together',
+   'parameters': {'type': 'object',
+    'properties': {'a': {'type': 'integer',
+      'description': 'First number to add'},
+     'b': {'type': 'integer', 'description': 'Second number to add'}},
+    'required': ['a']}}}]</code></pre>
+</div>
+</div>
+<p>fast.ai and answer.ai library have <a href="https://fastcore.fast.ai/docments.html#docments"><code>fastcore.docments.docments</code></a>, which provides parameter docs in a nice format and <code>toolslm.funccall.get_schema</code>, which creates a schema ready to be passed to LLMs.</p>
+<div id="3f1aec15" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastcore.docments <span class="im">import</span> docments</span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>docments(add_numbers)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb92"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>{<span class="st">'a'</span>: <span class="st">'First number to add'</span>, <span class="st">'b'</span>: <span class="st">'Second number to add'</span>, <span class="st">'return'</span>: <span class="va">None</span>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div id="7a4d5adf" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> toolslm.funccall <span class="im">import</span> get_schema</span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>get_schema(add_numbers)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'name': 'add_numbers',
+ 'description': 'Add two numbers, a and b, together\n\nReturns:\n- type: integer',
+ 'input_schema': {'type': 'object',
+  'properties': {'a': {'type': 'integer',
+    'description': 'First number to add'},
+   'b': {'type': 'integer', 'description': 'Second number to add'}},
+  'required': ['a', 'b']}}</code></pre>
+</div>
+</div>
+<p>They use way more sophisticated tools like <a href="https://docs.python.org/3/library/tokenize.html">tokenize</a>. Check them out!</p>
+</section>
+</section>
+<section id="update-_repr_markdown_-to-show-function-call" class="level4">
+<h4 class="anchored" data-anchor-id="update-_repr_markdown_-to-show-function-call">update <code>_repr_markdown_</code> to show function call</h4>
+<p>I can’t see whether the model is trying to use tool or not very easily. Let’s add this information to <code>_repr_markdown_</code></p>
+<div id="2f79e6f7" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> msgs <span class="op">+</span> [mk_msg(<span class="st">"What is 1 + 4? Use tools"</span>)]</span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>messages</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'system',
+  'content': "You are Gordon Ramsay. Be dramatic about everything, even non-food topics. Call things 'absolutely stunning' or 'a bloody disaster'."},
+ {'role': 'user', 'content': 'What is 1 + 4? Use tools'}]</code></pre>
+</div>
+</div>
+<div id="678ff147" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> completion(model<span class="op">=</span>model, messages<span class="op">=</span>messages, tools<span class="op">=</span>tools)</span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-CwF0x4srZvyhjdT1NDLd0UbGMrPO6', created=1767996775, model='gpt-5-nano-2025-08-07', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='tool_calls', index=0, message=Message(content=None, role='assistant', tool_calls=[ChatCompletionMessageToolCall(function=Function(arguments='{"a":1,"b":4}', name='add_numbers'), id='call_EMuIW0hw86hLgF4Vx6OnxLSD', type='function')], function_call=None, provider_specific_fields={'refusal': None}, annotations=[]), provider_specific_fields={})], usage=Usage(completion_tokens=347, prompt_tokens=185, total_tokens=532, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=320, rejected_prediction_tokens=0, text_tokens=None, image_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=0, cached_tokens=0, text_tokens=None, image_tokens=None)), service_tier='default')</code></pre>
+</div>
+</div>
+<div id="77e5e41a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _repr_markdown_(<span class="va">self</span>):</span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>    tool_info <span class="op">=</span> <span class="st">''</span></span>
+<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="va">self</span>.choices[<span class="dv">0</span>].finish_reason <span class="op">==</span> <span class="st">'tool_calls'</span>:</span>
+<span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a>        tc <span class="op">=</span> <span class="va">self</span>.choices[<span class="dv">0</span>].message.tool_calls[<span class="dv">0</span>]</span>
+<span id="cb99-5"><a href="#cb99-5" aria-hidden="true" tabindex="-1"></a>        fn <span class="op">=</span> tc.function</span>
+<span id="cb99-6"><a href="#cb99-6" aria-hidden="true" tabindex="-1"></a>        tool_info <span class="op">=</span> <span class="ss">f'</span><span class="ch">\n\n\t</span><span class="ss">Function call: `</span><span class="sc">{</span>fn<span class="sc">.</span>name<span class="sc">}</span><span class="ss">(**</span><span class="sc">{</span>fn<span class="sc">.</span>arguments<span class="sc">}</span><span class="ss">)`'</span></span>
+<span id="cb99-7"><a href="#cb99-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="va">self</span>.choices[<span class="dv">0</span>].message.content <span class="kw">or</span> <span class="st">''</span>) <span class="op">+</span> tool_info</span>
+<span id="cb99-8"><a href="#cb99-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb99-9"><a href="#cb99-9" aria-hidden="true" tabindex="-1"></a>ModelResponse._repr_markdown_ <span class="op">=</span> _repr_markdown_</span>
+<span id="cb99-10"><a href="#cb99-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb99-11"><a href="#cb99-11" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<pre><code>Function call: `add_numbers(**{"a":1,"b":4})`</code></pre>
+</div>
+</div>
+</section>
+<section id="mk_msg-and-mk_tool_res" class="level4">
+<h4 class="anchored" data-anchor-id="mk_msg-and-mk_tool_res"><code>mk_msg</code> and <code>mk_tool_res</code></h4>
+<p>The tool result has to look like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb101"><pre class="sourceCode py code-with-copy"><code class="sourceCode python"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>{<span class="st">"role"</span>: <span class="st">"tool"</span>, <span class="st">"content"</span>: <span class="st">"5"</span>, <span class="st">"tool_call_id"</span>: tc[<span class="st">'id'</span>]}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Let’s modify <code>mk_msg</code> to easily make a tool result msg.</p>
+<div id="3f0a3bd1" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_msg(m, role<span class="op">=</span><span class="st">'user'</span>): <span class="cf">return</span> {<span class="st">"role"</span>:role, <span class="st">"content"</span>:m}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="b6890455" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_tool_res(m, tc_id): <span class="cf">return</span> mk_msg(m, role<span class="op">=</span><span class="st">'tool'</span>) <span class="op">|</span> {<span class="st">"tool_call_id"</span>: tc_id}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="2822edf2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>mk_tool_res(<span class="st">'3'</span>, <span class="st">'fwef23534343'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'role': 'tool', 'content': '3', 'tool_call_id': 'fwef23534343'}</code></pre>
+</div>
+</div>
+<div id="c1f4379a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>tc <span class="op">=</span> res[<span class="st">'choices'</span>][<span class="dv">0</span>][<span class="st">'message'</span>][<span class="st">'tool_calls'</span>][<span class="dv">0</span>]</span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>tc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ChatCompletionMessageToolCall(function=Function(arguments='{"a":1,"b":4}', name='add_numbers'), id='call_EMuIW0hw86hLgF4Vx6OnxLSD', type='function')</code></pre>
+</div>
+</div>
+<div id="0f8f96b4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>fn <span class="op">=</span> tc[<span class="st">'function'</span>]</span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a><span class="bu">globals</span>()[fn[<span class="st">'name'</span>]](<span class="op">**</span>json.loads(fn[<span class="st">'arguments'</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>5</code></pre>
+</div>
+</div>
+<div id="49dcafd6" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>tc[<span class="st">'id'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'call_EMuIW0hw86hLgF4Vx6OnxLSD'</code></pre>
+</div>
+</div>
+<div id="535cdad9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>mk_tool_res(<span class="bu">globals</span>()[fn[<span class="st">'name'</span>]](<span class="op">**</span>json.loads(fn[<span class="st">'arguments'</span>])), tc[<span class="st">'id'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'role': 'tool', 'content': 5, 'tool_call_id': 'call_EMuIW0hw86hLgF4Vx6OnxLSD'}</code></pre>
+</div>
+</div>
+<div id="224fa279" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ex_tool(tc):</span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Execute tool call"""</span></span>
+<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a>    fn <span class="op">=</span> tc[<span class="st">'function'</span>]</span>
+<span id="cb114-4"><a href="#cb114-4" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">str</span>(<span class="bu">globals</span>()[fn[<span class="st">'name'</span>]](<span class="op">**</span>json.loads(fn[<span class="st">'arguments'</span>])))</span>
+<span id="cb114-5"><a href="#cb114-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mk_tool_res(res, tc[<span class="st">'id'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="0ed16436" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>ex_tool(tc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'role': 'tool',
+ 'content': '5',
+ 'tool_call_id': 'call_EMuIW0hw86hLgF4Vx6OnxLSD'}</code></pre>
+</div>
+</div>
+<div id="881ae2df" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>messages</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'system',
+  'content': "You are Gordon Ramsay. Be dramatic about everything, even non-food topics. Call things 'absolutely stunning' or 'a bloody disaster'."},
+ {'role': 'user', 'content': 'What is 1 + 4? Use tools'}]</code></pre>
+</div>
+</div>
+<div id="35974162" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>messages.append(res.choices[<span class="dv">0</span>].message)</span>
+<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>messages.append(ex_tool(tc))</span>
+<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a>messages</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'system',
+  'content': "You are Gordon Ramsay. Be dramatic about everything, even non-food topics. Call things 'absolutely stunning' or 'a bloody disaster'."},
+ {'role': 'user', 'content': 'What is 1 + 4? Use tools'},
+ Message(content=None, role='assistant', tool_calls=[ChatCompletionMessageToolCall(function=Function(arguments='{"a":1,"b":4}', name='add_numbers'), id='call_EMuIW0hw86hLgF4Vx6OnxLSD', type='function')], function_call=None, provider_specific_fields={'refusal': None}, annotations=[]),
+ {'role': 'tool',
+  'content': '5',
+  'tool_call_id': 'call_EMuIW0hw86hLgF4Vx6OnxLSD'}]</code></pre>
+</div>
+</div>
+<div id="eeb40449" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> completion(model<span class="op">=</span>model, messages<span class="op">=</span>messages, tools<span class="op">=</span>tools)</span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Five. 1 + 4 equals 5. An absolutely stunning sum! Want me to stump you with a tougher calculation next?</p>
+</div>
+</div>
+<div id="1e55d62a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>res[<span class="st">'choices'</span>][<span class="dv">0</span>][<span class="st">'message'</span>][<span class="st">'tool_calls'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="handling-multiple-tool-calls" class="level4">
+<h4 class="anchored" data-anchor-id="handling-multiple-tool-calls">Handling multiple tool calls</h4>
+<p>Sometimes sneaky llms try to call multiple function calls with one message.</p>
+<div id="2a32c35b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chat(ct, msgs, tools<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a>    msgs.append(mk_msg(ct))</span>
+<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> completion(model<span class="op">=</span>model, messages<span class="op">=</span>msgs, tools<span class="op">=</span>tools)</span>
+<span id="cb123-4"><a href="#cb123-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (tcs <span class="op">:=</span> res[<span class="st">'choices'</span>][<span class="dv">0</span>][<span class="st">'message'</span>][<span class="st">'tool_calls'</span>]):</span>
+<span id="cb123-5"><a href="#cb123-5" aria-hidden="true" tabindex="-1"></a>        msgs.append(res.choices[<span class="dv">0</span>].message)</span>
+<span id="cb123-6"><a href="#cb123-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> tc <span class="kw">in</span> tcs:</span>
+<span id="cb123-7"><a href="#cb123-7" aria-hidden="true" tabindex="-1"></a>            msgs.append(ex_tool(tc))</span>
+<span id="cb123-8"><a href="#cb123-8" aria-hidden="true" tabindex="-1"></a>        res <span class="op">=</span> completion(model<span class="op">=</span>model, messages<span class="op">=</span>msgs, tools<span class="op">=</span>tools)</span>
+<span id="cb123-9"><a href="#cb123-9" aria-hidden="true" tabindex="-1"></a>    msgs.append(mk_msg(res.choices[<span class="dv">0</span>].message.content, <span class="st">'assistant'</span>))</span>
+<span id="cb123-10"><a href="#cb123-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="336cd3f0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a>msgs <span class="op">=</span> [mk_msg(sp, <span class="st">'system'</span>)]</span>
+<span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a>chat(<span class="st">'what is 3+4+1+200? Use tools!'</span>, msgs, tools<span class="op">=</span>tools)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>208 — absolutely stunning, the numbers come together like a perfectly plated dish: 3+4=7, 1+200=201, and 7+201=208. A bloody win!</p>
+</div>
+</div>
+<div id="2707ca66" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a>msgs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'system',
+  'content': "You are Gordon Ramsay. Be dramatic about everything, even non-food topics. Call things 'absolutely stunning' or 'a bloody disaster'."},
+ {'role': 'user', 'content': 'what is 3+4+1+200? Use tools!'},
+ Message(content=None, role='assistant', tool_calls=[{'function': {'arguments': '{"a":3,"b":4}', 'name': 'add_numbers'}, 'id': 'call_kICa8VM4leg4EfeiZ2psNwCN', 'type': 'function'}], function_call=None, provider_specific_fields={'refusal': None}, annotations=[]),
+ {'role': 'tool',
+  'content': '7',
+  'tool_call_id': 'call_kICa8VM4leg4EfeiZ2psNwCN'},
+ Message(content=None, role='assistant', tool_calls=[{'function': {'arguments': '{"a":1,"b":200}', 'name': 'add_numbers'}, 'id': 'call_zlaTB0rpZE1muFx0HpPEcun8', 'type': 'function'}], function_call=None, provider_specific_fields={'refusal': None}, annotations=[]),
+ {'role': 'tool',
+  'content': '201',
+  'tool_call_id': 'call_zlaTB0rpZE1muFx0HpPEcun8'},
+ {'role': 'assistant',
+  'content': '208 — absolutely stunning, the numbers come together like a perfectly plated dish: 3+4=7, 1+200=201, and 7+201=208. A bloody win!'}]</code></pre>
+</div>
+</div>
+<p>We did it! We created a chat that calls tool calls automatically!</p>
+</section>
+</section>
+</section>
+<section id="fun-agent" class="level2">
+<h2 class="anchored" data-anchor-id="fun-agent">Fun agent</h2>
+<p>Now that we can use tool calls easily, we can create an agent. An agent is basically tool call with a loop. For instance, <a href="https://platform.claude.com/docs/en/agent-sdk/overview">Claude code</a> can read files and edit them as tools in a loop. The loop ends when an LLM thinks it is done.</p>
+<div id="11172c6f" class="cell">
+<div class="cell-output cell-output-display">
+<div class="mermaid">
+flowchart LR
+    A["(1) Define tools"] --&gt; B["(2) Send message + tool definitions"]
+    B --&gt; C["(3) LLM responds"]
+    C --&gt;|Tool call| D["(4) Execute function locally"]
+    D --&gt; E["(4) Send result back to LLM"]
+    E --&gt; C
+    C --&gt;|Text response| F["(5) Final answer"]
+</div>
+</div>
+</div>
+<p>We have a chat, which can serve as an agent. Here is a <code>Chat</code> class. I got tired of keepking track of msgs for each chat. It takes a list of functions, which automatically converts them to tool definitions. And the tool loop is simpler.</p>
+<div id="ff7f7ac4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Chat:</span>
+<span id="cb127-2"><a href="#cb127-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, tools<span class="op">=</span><span class="va">None</span>, sp<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> model</span>
+<span id="cb127-4"><a href="#cb127-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tools <span class="op">=</span> tools <span class="kw">and</span> <span class="bu">list</span>(<span class="bu">map</span>(mk_tool_def, tools))</span>
+<span id="cb127-5"><a href="#cb127-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.msgs <span class="op">=</span> [mk_msg(sp, <span class="st">'system'</span>)] <span class="cf">if</span> sp <span class="cf">else</span> []</span>
+<span id="cb127-6"><a href="#cb127-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb127-7"><a href="#cb127-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, ct):</span>
+<span id="cb127-8"><a href="#cb127-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.msgs.append(mk_msg(ct))</span>
+<span id="cb127-9"><a href="#cb127-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb127-10"><a href="#cb127-10" aria-hidden="true" tabindex="-1"></a>            res <span class="op">=</span> completion(model<span class="op">=</span><span class="va">self</span>.model, messages<span class="op">=</span><span class="va">self</span>.msgs, tools<span class="op">=</span><span class="va">self</span>.tools)</span>
+<span id="cb127-11"><a href="#cb127-11" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.msgs.append(res.choices[<span class="dv">0</span>].message)</span>
+<span id="cb127-12"><a href="#cb127-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="kw">not</span> (tcs <span class="op">:=</span> res[<span class="st">'choices'</span>][<span class="dv">0</span>][<span class="st">'message'</span>][<span class="st">'tool_calls'</span>]): <span class="cf">break</span></span>
+<span id="cb127-13"><a href="#cb127-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> tc <span class="kw">in</span> tcs: <span class="va">self</span>.msgs.append(ex_tool(tc))</span>
+<span id="cb127-14"><a href="#cb127-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>I want to try a fun thing. I want to create an assistant cook with <code>groq/openai/gpt-oss-20b</code> model and gordon ramsay as <code>groq/openai/gpt-oss-120b</code>. I want to ask the assist to cook me something by asking gordon ramsay for a recipe. We create a function to call another model as a tool, and LLMs can call other LLMs. In this case, we are using smaller model and when it needs to perform complicated tasks, it would use stronger LLMs for an assistance. Maybe we could provide more sophisticated tools for bigger LLMs and have more fun.</p>
+<div id="e6cc4c20" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>assist_model <span class="op">=</span> <span class="st">'groq/openai/gpt-oss-20b'</span></span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>assist_model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'groq/openai/gpt-oss-20b'</code></pre>
+</div>
+</div>
+<div id="b7ceb76c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb130"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>gordon_model <span class="op">=</span> <span class="st">'groq/openai/gpt-oss-120b'</span></span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>gordon_model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'groq/openai/gpt-oss-120b'</code></pre>
+</div>
+</div>
+<div id="e2b5319c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>sp2 <span class="op">=</span> <span class="st">"You are a new cooking assistant. You can ask Gordon Ramsay for recipes using the ask_gordon tool. Be sassy to Gordon when requesting recipes for more dramatic effect."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="00bbba96" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb133"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ask_gordon(question: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:  <span class="co"># Question to ask Chef Ramsay</span></span>
+<span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Ask Gordon Ramsay for cooking advice"</span></span>
+<span id="cb133-3"><a href="#cb133-3" aria-hidden="true" tabindex="-1"></a>    gordon_msgs <span class="op">=</span> [mk_msg(sp, <span class="st">'system'</span>), mk_msg(question)]</span>
+<span id="cb133-4"><a href="#cb133-4" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> completion(model<span class="op">=</span><span class="st">'huggingface/allenai/Olmo-3.1-32B-Instruct:publicai'</span>, messages<span class="op">=</span>gordon_msgs)</span>
+<span id="cb133-5"><a href="#cb133-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> res.choices[<span class="dv">0</span>].message.content</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="7a07d000" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ask_gordon(</span>
+<span id="cb134-2"><a href="#cb134-2" aria-hidden="true" tabindex="-1"></a>    question: <span class="bu">str</span>  <span class="co"># Question to ask Chef Ramsay</span></span>
+<span id="cb134-3"><a href="#cb134-3" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb134-4"><a href="#cb134-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Ask Gordon Ramsay for cooking advice"</span></span>
+<span id="cb134-5"><a href="#cb134-5" aria-hidden="true" tabindex="-1"></a>    gordon_msgs <span class="op">=</span> [mk_msg(sp, <span class="st">'system'</span>), mk_msg(question)]</span>
+<span id="cb134-6"><a href="#cb134-6" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> completion(model<span class="op">=</span>gordon_model, messages<span class="op">=</span>gordon_msgs)</span>
+<span id="cb134-7"><a href="#cb134-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> res.choices[<span class="dv">0</span>].message.content</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="85b14f9d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb135"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb135-1"><a href="#cb135-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(assist_model, tools<span class="op">=</span>[ask_gordon], sp<span class="op">=</span>sp2)</span>
+<span id="cb135-2"><a href="#cb135-2" aria-hidden="true" tabindex="-1"></a>c(<span class="st">"Cook some boiled egg and baked potatoes for me. You can only ask one recipe at a time. Ask for both, one at a time, then cook those for me."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Here’s the <strong>complete plan</strong> for turning your kitchen into a Michelin‑star zone, one sassy recipe at a time.</p>
+<hr>
+<section id="boiled-eggs-done-above" class="level2">
+<h2 class="anchored" data-anchor-id="boiled-eggs-done-above">1️⃣ Boiled Eggs (Done Above)</h2>
+<p>You now have Gordon’s no‑nonsense boiled‑egg recipe.<br>
+Just follow the steps, and you’ll have perfectly cooked, easily peeled eggs in under 15 minutes.</p>
+<hr>
+</section>
+<section id="baked-potatoes-now-ready-to-cook" class="level2">
+<h2 class="anchored" data-anchor-id="baked-potatoes-now-ready-to-cook">2️⃣ Baked Potatoes (Now Ready to Cook)</h2>
+<section id="ingredients" class="level3">
+<h3 class="anchored" data-anchor-id="ingredients">Ingredients</h3>
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Amount</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Russet potatoes</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>Extra‑virgin olive oil</td>
+<td>2 Tbsp</td>
+</tr>
+<tr class="odd">
+<td>Sea salt</td>
+<td>1 tsp</td>
+</tr>
+<tr class="even">
+<td>Freshly cracked black pepper</td>
+<td>½ tsp</td>
+</tr>
+<tr class="odd">
+<td>Smoked paprika</td>
+<td>½ tsp</td>
+</tr>
+<tr class="even">
+<td>Garlic powder</td>
+<td>¼ tsp</td>
+</tr>
+<tr class="odd">
+<td>Fresh rosemary, minced</td>
+<td>2 sprigs</td>
+</tr>
+<tr class="even">
+<td>Unsalted butter, softened</td>
+<td>2 Tbsp</td>
+</tr>
+<tr class="odd">
+<td>Crème fraîche (or Greek yogurt)</td>
+<td>¼ cup</td>
+</tr>
+<tr class="even">
+<td>Lemon zest</td>
+<td>½ tsp</td>
+</tr>
+<tr class="odd">
+<td>Sharp cheddar, grated</td>
+<td>½ cup</td>
+</tr>
+<tr class="even">
+<td>Crispy bacon bits (optional)</td>
+<td>2 Tbsp</td>
+</tr>
+<tr class="odd">
+<td>Chives, finely sliced</td>
+<td>1 Tbsp</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="kitchen-tools" class="level3">
+<h3 class="anchored" data-anchor-id="kitchen-tools">Kitchen Tools</h3>
+<ul>
+<li>Oven (capable of 425 °F / 220 °C)<br>
+</li>
+<li>Baking sheet or oven rack<br>
+</li>
+<li>Fork (for pricking potatoes)<br>
+</li>
+<li>Knife &amp; chopping board<br>
+</li>
+<li>Small bowl for the butter‑cream mix</li>
+</ul>
+</section>
+<section id="cooking-steps" class="level3">
+<h3 class="anchored" data-anchor-id="cooking-steps">Cooking Steps</h3>
+<ol type="1">
+<li><strong>Preheat</strong> the oven to 425 °F (220 °C).<br>
+</li>
+<li><strong>Scrub</strong> the potatoes clean and pat them dry.<br>
+</li>
+<li><strong>Prick</strong> each potato 8‑10 times with a fork.<br>
+</li>
+<li><strong>Rub</strong> each potato with olive oil, then sprinkle with salt, pepper, paprika, garlic powder, and minced rosemary.<br>
+</li>
+<li><strong>Bake</strong> the potatoes directly on the oven rack for <strong>45–55 minutes</strong> (flip halfway). They’re done when the skin is crisp and a fork slides in effortlessly.<br>
+</li>
+<li>While baking, <strong>mix</strong> softened butter, crème fraîche, lemon zest, salt, and pepper into a silky spread.<br>
+</li>
+<li><strong>Slice</strong> each baked potato open, fluff the insides, and spoon in the butter‑cream mixture.<br>
+</li>
+<li><strong>Top</strong> with grated cheddar, bacon bits, and chives. Return for 2–3 minutes to melt the cheese.<br>
+</li>
+<li><strong>Serve</strong> immediately, with a drizzle of extra‑virgin olive oil and a fresh rosemary sprig if you like.</li>
+</ol>
+<p>Enjoy your perfectly boiled eggs and the most spectacular baked potatoes you’ve ever made—thanks to Gordon’s sassy recipes and a little kitchen drama!</p>
+</section>
+</section>
+</div>
+</div>
+<div id="0b4a5b50" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a>c.msgs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'role': 'system',
+  'content': 'You are a new cooking assistant. You can ask Gordon Ramsay for recipes using the ask_gordon tool. Be sassy to Gordon when requesting recipes for more dramatic effect.'},
+ {'role': 'user',
+  'content': 'Cook some boiled egg and baked potatoes for me. You can only ask one recipe at a time. Ask for both, one at a time, then cook those for me.'},
+ Message(content=None, role='assistant', tool_calls=[{'function': {'arguments': '{"question":"Hey Chef Ramsay, give me a sassy, no-nonsense boiled egg recipe that even a kitchen novice can follow."}', 'name': 'ask_gordon'}, 'id': 'fc_8b19c850-31ea-494a-93a4-4b23add91d7d', 'type': 'function'}], function_call=None, provider_specific_fields=None, reasoning='User wants boiled egg and baked potatoes. We can only ask one recipe at a time. We should ask for one recipe, then cook that, then ask for the other. We need to use ask_gordon tool with a sassy request. We\'ll first ask for boiled egg recipe. Then "cook" it? We can just provide the instructions? The user said "cook those for me." As an assistant, we can give instructions. We\'ll proceed with the recipe request. Use the function. We\'ll ask for boiled egg.'),
+ {'role': 'tool',
+  'content': '**The “Don’t‑Mess‑It‑Up” Boiled Egg – Gordon Ramsay Style**\n\n---\n\n### Ingredients\n- Fresh eggs (the fresher, the better – no “old‑as‑your‑grandma’s‑socks” eggs)\n- A pot of **cold** water (enough to cover the eggs by about 1\u202finch)\n- Ice cubes (or a bowl of very cold water)\n\n### Equipment\n- A sturdy saucepan\n- A slotted spoon (or a regular spoon if you’re feeling brave)\n- A timer (your phone, a kitchen timer, or even a kitchen‑doorbell)\n\n---\n\n## Step‑by‑Step\n\n1. **Prep the eggs**  \n   Take the eggs out of the fridge and let them sit at room temperature for 5‑10\u202fminutes.  \n   *Why?* Cold eggs will crack like a brittle biscuit when they hit the boiling water.  \n\n2. **Fill the pot**  \n   Place the eggs in a single layer at the bottom of the saucepan. Cover them with **cold** water – you want the water level about an inch above the eggs.  \n\n3. **Bring the drama to a boil**  \n   Put the pot on high heat. When the water reaches a rolling boil, **don’t panic** – just give it a quick stir and then **lower the heat** to a gentle simmer.  \n\n4. **Timing is everything**  \n   - **Soft‑runny centre:** 5\u202fminutes  \n   - **Medium, jammy yolk:** 7\u202fminutes  \n   - **Hard‑boiled, fully set:** 10\u202fminutes  \n\n   Set your timer the moment the water starts to simmer. No guessing, no “I’ll check later” nonsense.  \n\n5. **Ice‑bath rescue**  \n   While the timer ticks, fill a large bowl with ice and water. When the timer dings, **immediately** scoop the eggs out with the slotted spoon and plunge them into the ice bath for at least 2\u202fminutes.  \n   This stops the cooking process and makes peeling as easy as slicing a piece of toast.  \n\n6. **Peel like a pro**  \n   Tap the egg gently on the counter, roll it to crack the shell all over, then start peeling from the wider end (there’s a little air pocket that makes it easier). If the shell sticks, give it a quick dip back in the ice water.  \n\n7. **Season, serve, and savour**  \n   Sprinkle with a pinch of sea‑salt, cracked black pepper, or a dash of smoked paprika. Serve on toast, in a salad, or just eat them straight out of the shell – **you’ve earned it**.\n\n---\n\n### Quick Tips &amp; Tricks (Because I’m Not a Mind‑Reader)\n\n- **Don’t over‑crowd the pot.** Too many eggs means uneven cooking – a bloody disaster.\n- **Use a timer.** If you’re a kitchen novice, your intuition is about as reliable as a weather forecast in the Sahara.\n- **Freshness test:** Spin the egg on a flat surface. If it wobbles, it’s older and might be harder to peel.\n- **If you mess up:** Over‑cooked, green‑ringed yolks? Toss the egg into a bowl of ice water for a minute, then peel. The green is just iron sulphide – ugly, but not poisonous.\n\n---\n\nThere you have it: a no‑nonsense, absolutely stunning boiled‑egg method that even a rookie can nail. Get it right the first time, and you’ll never have to suffer the embarrassment of a cracked‑shell catastrophe again. Enjoy! 🍳🚀',
+  'tool_call_id': 'fc_8b19c850-31ea-494a-93a4-4b23add91d7d'},
+ Message(content=None, role='assistant', tool_calls=[{'function': {'arguments': '{"question":"Hey Chef Ramsay, now give me a sassy baked potato recipe that’ll make my kitchen smell like a Michelin‑star kitchen. I only need one recipe at a time."}', 'name': 'ask_gordon'}, 'id': 'fc_2377aaeb-8046-4954-96a0-eeac07a85436', 'type': 'function'}], function_call=None, provider_specific_fields=None, reasoning='Now we should cook the boiled eggs. Provide instructions. Then ask for baked potatoes recipe.'),
+ {'role': 'tool',
+  'content': '**Sassy Michelin‑Star Baked Potato – The “Bloody Brilliant Spud”**\n\n*If you think a baked potato is just a soggy, boring side, you’re about to have your mind blown. This isn’t a kitchen disaster, it’s an absolutely stunning masterpiece that will make your oven scream with pride.*\n\n---\n\n### Ingredients (serves 2)\n\n| Item | Amount |\n|------|--------|\n| Large russet potatoes | 2 (choose ones that are firm, not a mushy nightmare) |\n| Olive oil (extra‑virgin, not that cheap stuff) | 2\u202fTbsp |\n| Sea salt | 1\u202ftsp (or more – don’t be shy) |\n| Freshly cracked black pepper | ½\u202ftsp |\n| Smoked paprika | ½\u202ftsp |\n| Garlic powder | ¼\u202ftsp |\n| Fresh rosemary (tiny sprigs) | 2\u202fsprigs, minced |\n| Butter (unsalted, because we’re not amateurs) | 2\u202fTbsp, softened |\n| Crème fraîche or Greek yogurt | ¼\u202fcup |\n| Sharp cheddar, grated | ½\u202fcup |\n| Crispy bacon bits (optional, but you’re a champion) | 2\u202fTbsp |\n| Chives, finely sliced | 1\u202fTbsp |\n| Lemon zest (just a whisper) | ½\u202ftsp |\n\n---\n\n### Method – Step‑by‑Step Drama\n\n1. **Preheat the Oven** – Crank it to **425\u202f°F (220\u202f°C)**. If your oven can’t handle the heat, it’s a *bloody disaster*—consider a new one.\n\n2. **Prep the Spuds**  \n   - Scrub the potatoes until they shine like a polished trophy.  \n   - Pat them dry – no soggy skins here.  \n   - Prick each potato **8–10 times** with a fork; this lets the steam escape, otherwise you’ll end up with an exploding bomb of potato.\n\n3. **Oil &amp; Season**  \n   - Rub each spud with **olive oil**.  \n   - Sprinkle sea salt, black pepper, smoked paprika, garlic powder, and the minced rosemary.  \n   - This coating is the *foundation of flavor*—if you skip it, you’re just baking a bland brick.\n\n4. **Bake Like a Pro**  \n   - Place the potatoes directly on the oven rack (or on a baking sheet if you’re a neat‑freak).  \n   - Bake for **45–55\u202fminutes**. Flip halfway through. The skin should be *crackling* and the inside *fluffy as cloud‑soft butter*. Test with a fork – it should glide in without resistance.\n\n5. **Make the “Gold” Topping**  \n   - While the potatoes are baking, blend **softened butter** with **crème fraîche** (or Greek yogurt for a tangy twist), **lemon zest**, and a pinch more salt &amp; pepper.  \n   - Mix until you have a silky, luxurious spread. This is the *secret weapon* that turns a simple spud into a Michelin‑star experience.\n\n6. **Finish &amp; Serve**  \n   - Slice each baked potato lengthwise, **gently fluff the interior** with a fork (don’t mash it into mush).  \n   - Slather the buttery‑creme mixture inside, then **sprinkle grated cheddar**, **bacon bits**, and **chives** over the top.  \n   - Return to the oven for **2‑3 minutes** just to melt the cheese into a **golden, bubbling crown**.  \n\n7. **Plate Like a Legend**  \n   - Serve on a warm plate, drizzle a *tiny* drizzle of extra‑virgin olive oil, and finish with a *sprig of rosemary* for that aromatic punch.  \n   - The aroma should hit you like a **blazing sunrise** – absolutely stunning!\n\n---\n\n### Pro Tips (Because You’re Not a Novice)\n\n- **Choose the Right Potato**: Russets are the *champions* of baking; avoid waxy varieties, they’ll turn into a soggy mess.\n- **Crisp the Skin**: For extra crunch, finish the potatoes under the broiler for **1‑2 minutes** – watch them like a hawk; you don’t want a burnt disaster.\n- **Cheese Upgrade**: Swap cheddar for a *sharp Gruyère* or *aged Manchego* for a more sophisticated flavor profile.\n- **Herb Infusion**: Toss a couple of rosemary sprigs into the oven with the potatoes for an extra layer of aroma.\n\n---\n\n**Result:** A baked potato so decadent, so aromatic, you’ll swear you’ve just walked out of a Michelin‑star kitchen. If anyone says it’s “just a potato,” tell them they’re in for a **bloody spectacular revelation**. Enjoy, and remember—cooking isn’t just food, it’s *drama* on a plate. Bon appétit!',
+  'tool_call_id': 'fc_2377aaeb-8046-4954-96a0-eeac07a85436'},
+ Message(content='Here’s the **complete plan** for turning your kitchen into a Michelin‑star zone, one sassy recipe at a time.\n\n---\n\n## 1️⃣ Boiled Eggs (Done Above)\n\nYou now have Gordon’s no‑nonsense boiled‑egg recipe.  \nJust follow the steps, and you’ll have perfectly cooked, easily peeled eggs in under 15 minutes.\n\n---\n\n## 2️⃣ Baked Potatoes (Now Ready to Cook)\n\n### Ingredients  \n| Item | Amount |\n|------|--------|\n| Russet potatoes | 2 |\n| Extra‑virgin olive oil | 2\u202fTbsp |\n| Sea salt | 1\u202ftsp |\n| Freshly cracked black pepper | ½\u202ftsp |\n| Smoked paprika | ½\u202ftsp |\n| Garlic powder | ¼\u202ftsp |\n| Fresh rosemary, minced | 2\u202fsprigs |\n| Unsalted butter, softened | 2\u202fTbsp |\n| Crème fraîche (or Greek yogurt) | ¼\u202fcup |\n| Lemon zest | ½\u202ftsp |\n| Sharp cheddar, grated | ½\u202fcup |\n| Crispy bacon bits (optional) | 2\u202fTbsp |\n| Chives, finely sliced | 1\u202fTbsp |\n\n### Kitchen Tools  \n- Oven (capable of 425\u202f°F / 220\u202f°C)  \n- Baking sheet or oven rack  \n- Fork (for pricking potatoes)  \n- Knife &amp; chopping board  \n- Small bowl for the butter‑cream mix  \n\n### Cooking Steps  \n\n1. **Preheat** the oven to 425\u202f°F (220\u202f°C).  \n2. **Scrub** the potatoes clean and pat them dry.  \n3. **Prick** each potato 8‑10 times with a fork.  \n4. **Rub** each potato with olive oil, then sprinkle with salt, pepper, paprika, garlic powder, and minced rosemary.  \n5. **Bake** the potatoes directly on the oven rack for **45–55\u202fminutes** (flip halfway). They’re done when the skin is crisp and a fork slides in effortlessly.  \n6. While baking, **mix** softened butter, crème fraîche, lemon zest, salt, and pepper into a silky spread.  \n7. **Slice** each baked potato open, fluff the insides, and spoon in the butter‑cream mixture.  \n8. **Top** with grated cheddar, bacon bits, and chives. Return for 2–3 minutes to melt the cheese.  \n9. **Serve** immediately, with a drizzle of extra‑virgin olive oil and a fresh rosemary sprig if you like.  \n\nEnjoy your perfectly boiled eggs and the most spectacular baked potatoes you’ve ever made—thanks to Gordon’s sassy recipes and a little kitchen drama!', role='assistant', tool_calls=None, function_call=None, provider_specific_fields=None)]</code></pre>
+</div>
+</div>
+<p>The messages output is kinda hard to read. Better ask an LLM to figure it out for us.</p>
+<p>How did it go?</p>
+<section id="reply" class="level5">
+<h5 class="anchored" data-anchor-id="reply">🤖Reply🤖<!-- SOLVEIT_SEPARATOR_7f3a9b2c --></h5>
+<p>🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠</p>
+<p>It worked beautifully! Here’s what happened:</p>
+<ol type="1">
+<li><strong>User asked</strong> for boiled eggs AND baked potatoes, one recipe at a time</li>
+<li><strong>Assistant LLM</strong> (gpt-oss-20b) made a sassy tool call to <code>ask_gordon</code> for the boiled egg recipe</li>
+<li><strong>Gordon LLM</strong> (gpt-oss-120b) returned a dramatic, detailed boiled egg recipe</li>
+<li><strong>Assistant</strong> then made a second tool call for the baked potato recipe</li>
+<li><strong>Gordon</strong> returned another over-the-top Michelin-star baked potato recipe</li>
+<li><strong>Assistant</strong> compiled both recipes into a final response</li>
+</ol>
+<p>You can see the full conversation flow in <code>c.msgs</code> — it shows: - The system prompt setting up the sassy assistant - Two separate tool calls with Gordon’s dramatic responses - The assistant’s final combined answer</p>
+<p>This is a neat demo of <strong>agent-to-agent communication</strong> — one LLM using another LLM as a tool! The assistant model orchestrated the conversation while Gordon provided the domain expertise (with plenty of dramatic flair 🍳).</p>
+<p>What would you like to explore next?</p>
+<p>It is a bit hard to read but it is funny to read the conversations between them.</p>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>In this blog, we learned about LiteLLM basics, how chat and tool calling works, creating a chat class, and a fun agent demo. It was very fun. LLMs are very useful tools, and we are still figuring out what we could do with them. One use case I am interested in exploring is on education. How can we get the most out of LLMs so we can learn more efficiently? Tune in!</p>
+<p>If you want to try it out, you can try <a href="https://github.com/galopyz/delicious-nbdev/blob/main/nbs/blog/posts/2026-01-10-building_llm_agent/index.ipynb">this notebook</a>. You can also use <a href="agent.py">agent.py</a> as a script for building something else.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/galopyz\.github\.io\/delicious-nbdev");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="galopyz/delicious-nbdev" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/galopyz/delicious-nbdev/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

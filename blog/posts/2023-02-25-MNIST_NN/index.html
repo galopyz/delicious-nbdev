@@ -1,0 +1,2546 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="galopy">
+<meta name="dcterms.date" content="2023-02-25">
+
+<title>MNIST Neural Nets – delicious-nbdev</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-a31b994c8e6b22d286c5759f252fa97b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
+<meta property="og:title" content="MNIST Neural Nets – delicious-nbdev">
+<meta property="og:description" content="Just one more bite…">
+<meta property="og:image" content="https://galopyz.github.io/delicious-nbdev/blog/posts/2023-02-25-MNIST_NN/index_files/figure-html/cell-8-output-1.png">
+<meta property="og:site_name" content="delicious-nbdev">
+<meta property="og:image:height" content="28">
+<meta property="og:image:width" content="28">
+<meta name="twitter:title" content="MNIST Neural Nets – delicious-nbdev">
+<meta name="twitter:description" content="Just one more bite…">
+<meta name="twitter:image" content="https://galopyz.github.io/delicious-nbdev/blog/posts/2023-02-25-MNIST_NN/index_files/figure-html/cell-8-output-1.png">
+<meta name="twitter:image-height" content="28">
+<meta name="twitter:image-width" content="28">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">delicious-nbdev</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../blog/index.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/galopyz/delicious-nbdev"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Blog</li><li class="breadcrumb-item"><a href="../../../blog/posts/2023-02-25-MNIST_NN/index.html">MNIST Neural Nets</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Blog</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+ <span class="menu-text">blog/posts/2026-01-12-building_llm_agent/index.ipynb</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-10-26-why-build-llm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Why Build a Language Model from Scratch?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-09-28-kv_cache/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HuggingFace KV cache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-09-21-meselson-stahl/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Meselson-Stahl Experiment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-08-21-my-experience-with-solveit/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">My experience with solveit</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-07-17-pass@k/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">What is pass@k evaluation metric?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-07-05-gemini_tutorial/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beginner’s guide to gemini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-06-03-instruct_gpt/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How InstructGPT is trained</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-23-bllms_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Building LLM part2-Processing Text</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-14-bllms_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Building LLM part1-Intro_to_LLMs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-09-computational_biology/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A Student’s Perspective on Computational Biology</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-01-17-how_to_solve_it/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to solve it</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2024-01-16-Resnet_part2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resnet Part2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2024-01-13-MiniAI_utilities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniAI Utilities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-12-04-Resnet/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resnet</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-11-17-Scheduler/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduler</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-11-06-Optimizer/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Optimizer</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-10-19-Initialization_part_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialization part 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-10-10-Initialization_part_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialization part 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-26-Pytorch_Hooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Pytorch Hooks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-23-Convolutions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Convolutional Neural Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-09-Learner_part_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learner Pt.2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-08-30-Learner_part_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learner Pt.1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-08-25-Callbacks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Callback</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-07-08-Hugging-Face-Features/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hugging Face Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-03-05-Fruit_Multi_pt2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fruit Multi-Classifier pt.2 Deployment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-03-05-Fruit_Multi_pt1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fruit Multi-Classifier pt.1 Training</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-25-MNIST_NN/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">MNIST Neural Nets</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-20-MNIST_base/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST base</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-19-MNIST_FastAI/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST in FastAI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-07-saving_jupyter_config/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving Jupyter configuration on Paperspace.</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-06-paddy1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Intro to Paddy competition</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-03-live_coding7/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 7</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-30-live_coding6/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 6</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-27-live_coding5/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 5</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-16-live_coding4/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 4</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-15-live_coding3/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 3</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-14-live_coding2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-12-live_coding1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-11-alien-vs.-ghost-pt2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alien vs.&nbsp;Ghost Pt.2 Deploying</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-07-alien-vs.-ghost-pt1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alien vs.&nbsp;Ghost Pt.1 Training</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#mnist-project" id="toc-mnist-project" class="nav-link active" data-scroll-target="#mnist-project">MNIST Project</a>
+  <ul class="collapse">
+  <li><a href="#preparing-data" id="toc-preparing-data" class="nav-link" data-scroll-target="#preparing-data">Preparing data</a></li>
+  <li><a href="#using-neural-network" id="toc-using-neural-network" class="nav-link" data-scroll-target="#using-neural-network">Using neural network</a></li>
+  <li><a href="#cross-entropy-loss" id="toc-cross-entropy-loss" class="nav-link" data-scroll-target="#cross-entropy-loss">Cross entropy loss</a></li>
+  <li><a href="#calculating-gradients" id="toc-calculating-gradients" class="nav-link" data-scroll-target="#calculating-gradients">Calculating gradients</a></li>
+  <li><a href="#first-training" id="toc-first-training" class="nav-link" data-scroll-target="#first-training">First training</a></li>
+  <li><a href="#minibatches" id="toc-minibatches" class="nav-link" data-scroll-target="#minibatches">Minibatches</a></li>
+  <li><a href="#optimizer" id="toc-optimizer" class="nav-link" data-scroll-target="#optimizer">Optimizer</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/galopyz/delicious-nbdev/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Blog</li><li class="breadcrumb-item"><a href="../../../blog/posts/2023-02-25-MNIST_NN/index.html">MNIST Neural Nets</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">MNIST Neural Nets</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>galopy </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 25, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="mnist-project" class="level1">
+<h1>MNIST Project</h1>
+<p>In this blog, we will use neural networks to train MNIST dataset. We start with using pytorch and integrate fastai in the end.</p>
+<p>This is part of Further Research from fastbook <a href="https://github.com/fastai/fastbook/blob/master/04_mnist_basics.ipynb">chapter 4</a>.</p>
+<section id="preparing-data" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-data">Preparing data</h2>
+<p>This part is the same as last blog where we created a baseline by calculating means of images.</p>
+<div id="339ee13f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastai.vision.<span class="bu">all</span> <span class="im">import</span> <span class="op">*</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="382fac27" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>matplotlib.rc(<span class="st">'image'</span>, cmap<span class="op">=</span><span class="st">'Greys'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">42</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;torch._C.Generator&gt;</code></pre>
+</div>
+</div>
+<div id="16eb2f4c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> untar_data(URLs.MNIST)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>Path.BASE_PATH <span class="op">=</span> path</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>path.ls()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+    <div>
+      <progress value="15687680" class="" max="15683414" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      100.03% [15687680/15683414 00:00&lt;00:00]
+    </div>
+    
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>(#2) [Path('training'),Path('testing')]</code></pre>
+</div>
+</div>
+<div id="02ea0c24" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(path<span class="op">/</span><span class="st">'training'</span>).ls()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(#10) [Path('training/7'),Path('training/8'),Path('training/5'),Path('training/6'),Path('training/9'),Path('training/3'),Path('training/2'),Path('training/0'),Path('training/4'),Path('training/1')]</code></pre>
+</div>
+</div>
+<p>I looked at the number of files for each number, and they are not the same.</p>
+<div id="c681a774" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>trn_counts <span class="op">=</span> {n: <span class="bu">len</span>((path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="bu">str</span>(n)).ls()) <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)}</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>trn_counts</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{0: 5923,
+ 1: 6742,
+ 2: 5958,
+ 3: 6131,
+ 4: 5842,
+ 5: 5421,
+ 6: 5918,
+ 7: 6265,
+ 8: 5851,
+ 9: 5949}</code></pre>
+</div>
+</div>
+<p>Since these are paths for images we have to convert them into pytorch tensors. Pytorch provides us with <a href="https://numpy.org/doc/stable/user/basics.broadcasting.html">broadcasting</a> ability, which is very fast.</p>
+<p>First, we turn image paths into numbers and return as L, which is an upgraded version of list.</p>
+<div id="7a77738b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_images(path):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> L(PILImage.create(x) <span class="cf">for</span> x <span class="kw">in</span> path.ls())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="f8f129ed" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ones <span class="op">=</span> create_images(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'1'</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>im1 <span class="op">=</span> ones[<span class="dv">0</span>]</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>im1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We need to turn them into tensors for speed. However, we have to check the shape of tensors to make sure they are broadcastable and the shape is one we’re expecting.</p>
+<div id="49307413" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_tensor_imgs(imgs):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Convert a list of images into a tensor"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.stack([tensor(im) <span class="cf">for</span> im <span class="kw">in</span> imgs])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="096d3a64" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>stacked_ones <span class="op">=</span> create_tensor_imgs(ones)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>stacked_ones[<span class="dv">0</span>].shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>torch.Size([28, 28, 3])</code></pre>
+</div>
+</div>
+<div id="afbeb9ed" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>stacked_ones.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>torch.Size([6742, 28, 28, 3])</code></pre>
+</div>
+</div>
+<p>Looking at the shape of an image, it is interesting to find out that its shape is [28, 28, 3] (y, x, and color values). I was expecting to see [28, 28] (y and x values) because it is a black and white image. So, let’s see what’s going on here.</p>
+<div id="a6c97b04" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>array(im1)[<span class="dv">10</span>:<span class="dv">15</span>, <span class="dv">12</span>:<span class="dv">15</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>array([[[  0,   0,   0],
+        [221, 221, 221],
+        [251, 251, 251]],
+
+       [[ 64,  64,  64],
+        [236, 236, 236],
+        [251, 251, 251]],
+
+       [[127, 127, 127],
+        [251, 251, 251],
+        [251, 251, 251]],
+
+       [[127, 127, 127],
+        [251, 251, 251],
+        [251, 251, 251]],
+
+       [[128, 128, 128],
+        [253, 253, 253],
+        [253, 253, 253]]], dtype=uint8)</code></pre>
+</div>
+</div>
+<p>So, it is just filled with the same numbers per each row. We just need one column, so we can simply take a mean of last rank.</p>
+<div id="a1a33b8e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>array(im1)[<span class="dv">10</span>:<span class="dv">15</span>, <span class="dv">12</span>:<span class="dv">15</span>].mean(<span class="op">-</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>array([[  0., 221., 251.],
+       [ 64., 236., 251.],
+       [127., 251., 251.],
+       [127., 251., 251.],
+       [128., 253., 253.]])</code></pre>
+</div>
+</div>
+<p>So, here is the updated version of <code>create_tensor_imgs</code> that calculates a mean so that we can get rid of the last rank of our tensors.</p>
+<div id="34d201a5" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_tensor_imgs(imgs):</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Convert a list of images into a tensor"</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.stack([tensor(im) <span class="cf">for</span> im <span class="kw">in</span> imgs]).mean(<span class="op">-</span><span class="dv">1</span>, dtype<span class="op">=</span>torch.<span class="bu">float</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="a2d211f9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>stacked_ones <span class="op">=</span> create_tensor_imgs(ones)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>stacked_ones[<span class="dv">0</span>].shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>torch.Size([28, 28])</code></pre>
+</div>
+</div>
+<div id="1448fcb6" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>array(stacked_ones[<span class="dv">0</span>])[<span class="dv">10</span>:<span class="dv">15</span>, <span class="dv">12</span>:<span class="dv">15</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>array([[  0., 221., 251.],
+       [ 64., 236., 251.],
+       [127., 251., 251.],
+       [127., 251., 251.],
+       [128., 253., 253.]], dtype=float32)</code></pre>
+</div>
+</div>
+<p>Looks good. Now, we want those pixel values to be between 0 and 1 so that it is easier to train neural networks.</p>
+<div id="9ac9036f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_tensor_imgs(imgs):</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Convert a list of images into a tensor"</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.stack([tensor(im) <span class="cf">for</span> im <span class="kw">in</span> imgs]).mean(<span class="op">-</span><span class="dv">1</span>, dtype<span class="op">=</span>torch.<span class="bu">float</span>)<span class="op">/</span><span class="dv">255</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="c8eb8a85" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>stacked_ones <span class="op">=</span> create_tensor_imgs(ones)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>array(stacked_ones[<span class="dv">0</span>])[<span class="dv">10</span>:<span class="dv">15</span>, <span class="dv">12</span>:<span class="dv">15</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>array([[0.        , 0.8666667 , 0.9843137 ],
+       [0.2509804 , 0.9254902 , 0.9843137 ],
+       [0.49803922, 0.9843137 , 0.9843137 ],
+       [0.49803922, 0.9843137 , 0.9843137 ],
+       [0.5019608 , 0.99215686, 0.99215686]], dtype=float32)</code></pre>
+</div>
+</div>
+<div id="4ad742cd" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stacked_nums(path):</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Converts path into stacked tensors."</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    imgs <span class="op">=</span> create_images(path)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> create_tensor_imgs(imgs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="00ea680d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>stacked_zeros <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'0'</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>stacked_twos <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'2'</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>stacked_threes <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'3'</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>stacked_fours <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'4'</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>stacked_fives <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'5'</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>stacked_sixs <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'6'</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>stacked_sevens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'7'</span>)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>stacked_eights <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'8'</span>)</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>stacked_nines <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'training'</span><span class="op">/</span><span class="st">'9'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We also need test data to check how we’re doing. Without test set, we don’t know whether we are overfitting or not. So, we do the same process we did for test data.</p>
+<div id="08185fde" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>tst_0_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'0'</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>tst_1_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'1'</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>tst_2_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'2'</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>tst_3_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'3'</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>tst_4_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'4'</span>)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>tst_5_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'5'</span>)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>tst_6_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'6'</span>)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>tst_7_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'7'</span>)</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>tst_8_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'8'</span>)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>tst_9_tens <span class="op">=</span> stacked_nums(path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="st">'9'</span>)</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>tst_tens <span class="op">=</span> L([tst_0_tens, tst_1_tens, tst_2_tens, tst_3_tens, tst_4_tens, </span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>              tst_5_tens, tst_6_tens, tst_7_tens, tst_8_tens, tst_9_tens])</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>tst_counts <span class="op">=</span> {n: <span class="bu">len</span>((path<span class="op">/</span><span class="st">'testing'</span><span class="op">/</span><span class="bu">str</span>(n)).ls()) <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)}</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>tst_1_tens.shape, tst_9_tens.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(torch.Size([1135, 28, 28]), torch.Size([1009, 28, 28]))</code></pre>
+</div>
+</div>
+<div id="98ede1e6" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>tst_counts</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{0: 980,
+ 1: 1135,
+ 2: 1032,
+ 3: 1010,
+ 4: 982,
+ 5: 892,
+ 6: 958,
+ 7: 1028,
+ 8: 974,
+ 9: 1009}</code></pre>
+</div>
+</div>
+<p>Now, we stack all the training tensors together to create <code>trn_x</code>. And create <code>trn_y</code> with the counts. We zip those together to create a dataset. We also change the shape of tensors from [28, 28] to [784]. This shape is more useful for matrix multiplication we will do later.</p>
+<div id="60c94b63" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>trn_x <span class="op">=</span> torch.cat([stacked_zeros, stacked_ones, stacked_twos, </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                   stacked_threes, stacked_fours, stacked_fives, </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>                   stacked_sixs, stacked_sevens, stacked_eights, </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                   stacked_nines]).view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">28</span><span class="op">*</span><span class="dv">28</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>trn_y <span class="op">=</span> tensor(<span class="bu">list</span>(flatten([[x] <span class="op">*</span> y <span class="cf">for</span> x, y <span class="kw">in</span> trn_counts.items()])))</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>trn_dset <span class="op">=</span> <span class="bu">list</span>(<span class="bu">zip</span>(trn_x, trn_y))</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>trn_x.shape, trn_y.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(torch.Size([60000, 784]), torch.Size([60000]))</code></pre>
+</div>
+</div>
+<div id="33bac8b0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>show_image(trn_x[<span class="dv">50000</span>].view(<span class="dv">28</span>,<span class="dv">28</span>)), trn_y[<span class="dv">50000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="16e9f5d8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> trn_dset[<span class="dv">0</span>]</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>x.shape, y.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(torch.Size([784]), torch.Size([]))</code></pre>
+</div>
+</div>
+<p>Training data looks good, so let’s work on the test data.</p>
+<div id="cb86af4b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>tst_x <span class="op">=</span> torch.cat([tst_0_tens, tst_1_tens, tst_2_tens, </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>                     tst_3_tens, tst_4_tens, tst_5_tens,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>                     tst_6_tens, tst_7_tens, tst_8_tens,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>                     tst_9_tens]).view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">28</span><span class="op">*</span><span class="dv">28</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>tst_y <span class="op">=</span> tensor(<span class="bu">list</span>(flatten([[x] <span class="op">*</span> y <span class="cf">for</span> x, y <span class="kw">in</span> tst_counts.items()])))</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>tst_dset <span class="op">=</span> <span class="bu">list</span>(<span class="bu">zip</span>(tst_x, tst_y))</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>tst_x.shape, tst_y.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(torch.Size([10000, 784]), torch.Size([10000]))</code></pre>
+</div>
+</div>
+</section>
+<section id="using-neural-network" class="level2">
+<h2 class="anchored" data-anchor-id="using-neural-network">Using neural network</h2>
+<p>In order to use neural network, we need to initialize parameters, such as weights and bias.</p>
+<div id="8099aa93" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> init_params(size, std<span class="op">=</span><span class="fl">1.0</span>): <span class="cf">return</span> (torch.randn(size)<span class="op">*</span>std).requires_grad_()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="55ebab5f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> init_params((<span class="dv">28</span><span class="op">*</span><span class="dv">28</span>, <span class="dv">10</span>))</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>bias <span class="op">=</span> init_params(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We are initializing <code>weights</code> parameter with size (28*28, 10) because <code>28*28</code> is the size of our input (reshaped images) and <code>10</code> is the size of our output. Why do we return 10 numbers as an output for each image? Because we’re making predictions on each category (from 0 to 9). Out of all those 10 numbers, the biggest number is the model’s guess.</p>
+<p>But couldn’t we just output 1 number instead and pick a target based on the range of our output? For instance, we could use sigmoid function to get our output numbers to be between 0 and 1, and if it’s between 0 and 0.1, it is 0, if it’s between 0.1 and 0.2, it is 1, and so on. That’s also a possible approach to this problem.</p>
+<p>With those parameters, we will perform matrix multiplications. There are multiple ways to calculate it. One way involves manually transposing a matrix and getting the sum over dimension 1, and another way involves using <code>@</code> operator, which does all of that for us.</p>
+<div id="e688bcf8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>(x<span class="op">*</span>weights.T).<span class="bu">sum</span>(dim<span class="op">=</span><span class="dv">1</span>) <span class="op">+</span> bias</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([-3.0786,  6.5823, 12.8080, 10.5792, -8.4876, 12.2374,  7.8472, -2.3099,
+         2.4677, 16.0547], grad_fn=&lt;AddBackward0&gt;)</code></pre>
+</div>
+</div>
+<div id="8fcf95ec" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">@</span>weights <span class="op">+</span> bias</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([-3.0786,  6.5823, 12.8080, 10.5792, -8.4876, 12.2374,  7.8472, -2.3099,
+         2.4677, 16.0547], grad_fn=&lt;AddBackward0&gt;)</code></pre>
+</div>
+</div>
+<div id="aaf6a0f0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> linear(xb): <span class="cf">return</span> xb<span class="op">@</span>weights <span class="op">+</span> bias</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="3f94e31f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> linear(trn_x)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>preds</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[ -3.0786,   6.5823,  12.8080,  ...,  -2.3099,   2.4677,  16.0547],
+        [ -4.0905,   1.3646,  -1.6264,  ...,  -5.0465,  -8.9219,   5.3742],
+        [ -4.6858,  -1.6842,   5.6141,  ...,  -7.0370,   7.6748,   1.3543],
+        ...,
+        [-15.4864,  -1.8742,  -6.2627,  ...,  -0.1359,  10.1261,  18.8826],
+        [-22.5967,   5.1747,  -6.5157,  ...,  -2.5263,  20.9854,  12.2597],
+        [-15.9537,  -2.7749,   3.1555,  ...,   5.3508,  11.7086,  13.8179]],
+       grad_fn=&lt;AddBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>So, we know that these numbers represent “socres” for each category. Let’s look at the first prediction.</p>
+<div id="9897fc09" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>preds[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([-3.0786,  6.5823, 12.8080, 10.5792, -8.4876, 12.2374,  7.8472, -2.3099,
+         2.4677, 16.0547], grad_fn=&lt;SelectBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>From these numbers, the biggest number is 16.0547, which is a prediction for 9. So, this predicted 9. We can use <code>torch.argmax</code> to calculate the maximum index easily.</p>
+<div id="b89a1a7f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>preds[<span class="dv">0</span>].argmax()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor(9)</code></pre>
+</div>
+</div>
+<p>For multiple predictions, we can specify the dimension to be 1.</p>
+<div id="114d5db7" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>preds.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([9, 5, 5,  ..., 9, 8, 9])</code></pre>
+</div>
+</div>
+<p>With predictions on categories, we can calculate accuracy by comparing it to the targets (<code>trn_y</code>).</p>
+<div id="7e5eb805" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>(preds.argmax(dim<span class="op">=</span><span class="dv">1</span>) <span class="op">==</span> trn_y).<span class="bu">float</span>().mean() <span class="op">*</span> <span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor(12.0433)</code></pre>
+</div>
+</div>
+<p>We have about 10% accuracy since we are using randomly initialized parameters to predict.</p>
+<div id="b10b13bb" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> acc(pred, targ):</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (pred.argmax(dim<span class="op">=</span><span class="dv">1</span>) <span class="op">==</span> targ).<span class="bu">float</span>().mean() <span class="op">*</span> <span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="48f1a8ab" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>acc(preds, trn_y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor(12.0433)</code></pre>
+</div>
+</div>
+</section>
+<section id="cross-entropy-loss" class="level2">
+<h2 class="anchored" data-anchor-id="cross-entropy-loss">Cross entropy loss</h2>
+<p>In order to improve our accuracy, we have to tweak our weights and biases (parameters). To improve our parameters, we have to use a loss function. Then, we can calculate gradients and use them to update our parameters. Loss functions are just mathematical functions, but they have smooth shapes. This is important because gradients cannot be calculated on sharp edges. Let’s take look at a sigmoid function.</p>
+<div id="0ab2ebc0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_function(fn, title<span class="op">=</span><span class="va">None</span>, xmin<span class="op">=-</span><span class="fl">4.1</span>, xmax<span class="op">=</span><span class="fl">4.1</span>):</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> torch.linspace(xmin, xmax, <span class="dv">20</span>)</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>    plt.plot(x, fn(x))</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> title: plt.title(title)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="06a257ae" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>plot_function(torch.nn.Sigmoid(), title<span class="op">=</span><span class="st">'Sigmoid function'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-40-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Sigmoid function has no sharp edge, so gradients can be found anywhere. This will also ensure that predictions will be between 0 and 1. We typically use sigmoid function when we try to predict boolean values. For instance, we could use this function for problems like “is it a cat or dog?”</p>
+<p>Because we have multiple categories to predict, we use cross entropy loss. Cross entropy loss can be thought of as sigmoid designed for multiple categories. Cross entropy loss is composed of multiple functions. First, we use a softmax function ensures that all numbers are positive and add up to 1. Also, this function takes exponential of all values, so even the slight difference will be magnified. This will result in choosing one class with more confidence. Second, we take the log of the activations we got from softmax. Let’s look at a log function.</p>
+<div id="a35fb2df" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>plot_function(torch.log, title<span class="op">=</span><span class="st">"Log function"</span>, xmin<span class="op">=-</span><span class="fl">0.1</span>, xmax<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-41-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In log function, we get a very big negative value if a number gets closer to 0, and reaches 0 when it gets 1. So, if our activation is close to 0 after softmax, it will be a big negative number after taking a log. This will result in a big gradient. However, if the number is close to 1, it is good enough. So, it will punish numbers that are far off, but forgiving for close numbers. But we still have problems. We still have 10 activation numbers and all of them are negative.</p>
+<p>The last function we will use is negative log likelihood, which picks one number from our 10 activations and multiply by -1 to make it a positive value. Although it has log in its name, it actually does not take the log function. We have to do it ourselves. Let’s take a look at how it looks like.</p>
+<div id="200a9252" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>sm_acts <span class="op">=</span> torch.nn.Softmax(dim<span class="op">=</span><span class="dv">1</span>)(preds)</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>sm_acts[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([4.6022e-09, 7.2222e-05, 3.6513e-02, 3.9309e-03, 2.0602e-11, 2.0636e-02,
+        2.5585e-04, 9.9276e-09, 1.1795e-06, 9.3859e-01],
+       grad_fn=&lt;SelectBackward0&gt;)</code></pre>
+</div>
+</div>
+<div id="32454382" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>log_acts <span class="op">=</span> torch.log(sm_acts)</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>log_acts[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([-19.1967,  -9.5358,  -3.3101,  -5.5389, -24.6057,  -3.8807,  -8.2709,
+        -18.4279, -13.6504,  -0.0634], grad_fn=&lt;SelectBackward0&gt;)</code></pre>
+</div>
+</div>
+<div id="3514945d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>trn_y[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor(0)</code></pre>
+</div>
+</div>
+<div id="7657c1bd" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>torch.nn.NLLLoss()(log_acts[<span class="dv">0</span>], trn_y[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor(19.1967, grad_fn=&lt;NllLossBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>Notice that we get the same values for the built in cross entropy loss function.</p>
+<div id="e6540b58" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>torch.nn.NLLLoss()(log_acts, trn_y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor(14.3907, grad_fn=&lt;NllLossBackward0&gt;)</code></pre>
+</div>
+</div>
+<div id="dad8390c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> torch.nn.CrossEntropyLoss()(preds, trn_y)</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>loss</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor(14.3907, grad_fn=&lt;NllLossBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>It’s easier to use the built in function, and it’s also faster.</p>
+<div id="193a508c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>15.5 ms ± 627 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)</code></pre>
+</div>
+</div>
+<div id="5427a14e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>21.7 ms ± 2.67 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)</code></pre>
+</div>
+</div>
+</section>
+<section id="calculating-gradients" class="level2">
+<h2 class="anchored" data-anchor-id="calculating-gradients">Calculating gradients</h2>
+<p>So, we calculated the loss. With loss, we can calculate the gradients by calling <code>backward()</code>. Then, we can take a look at them.</p>
+<div id="a4e8327c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>loss.backward()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="c020f721" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>bias.grad, weights.grad.<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(tensor([-9.3132e-09]), tensor(-1.0490e-05))</code></pre>
+</div>
+</div>
+<p>We can define a function it.</p>
+<div id="3f7439e9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_grad(xb, yb, model):</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Calculate the gradients"</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>    preds <span class="op">=</span> model(xb)</span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> torch.nn.CrossEntropyLoss()(preds, yb)</span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> loss</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="ca84a65a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> init_params((<span class="dv">28</span><span class="op">*</span><span class="dv">28</span>, <span class="dv">10</span>))</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>bias <span class="op">=</span> init_params(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="d856ce3c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>calc_grad(trn_x, trn_y, linear)</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>weights.grad.mean(), bias.grad.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(tensor(-1.2164e-10), tensor(-9.3132e-09))</code></pre>
+</div>
+</div>
+<p>After calculating the gradients, we can update our parameters using the gradients. We can multiply parameter’s gradient by any number, which is referred to as a learning rate. If it’s big, it will train faster, and if it’s slow, it will train slower. However, if it’s too big, it cannot train. So, we can try couple numbers and see what works and what doensn’t. After updating, we have to reset the gradients. If we don’t, gradients will keep growing.</p>
+<div id="fd23be31" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> init_params((<span class="dv">28</span><span class="op">*</span><span class="dv">28</span>, <span class="dv">10</span>))</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>bias <span class="op">=</span> init_params(<span class="dv">1</span>)</span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>calc_grad(trn_x, trn_y, linear)</span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a>bias.grad, weights.grad.<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(tensor([-1.3039e-08]), tensor(-9.5367e-07))</code></pre>
+</div>
+</div>
+<div id="1f10b072" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>calc_grad(trn_x, trn_y, linear)</span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>bias.grad, weights.grad.<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(tensor([-2.6077e-08]), tensor(-1.9073e-06))</code></pre>
+</div>
+</div>
+<p>See how it grew? we have to use <code>zero_()</code> on the gradients. Training _ on functions means in place function.</p>
+<div id="f6750c61" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>weights.data <span class="op">-=</span> weights.grad <span class="op">*</span> <span class="dv">10</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>bias.data <span class="op">-=</span> bias.grad <span class="op">*</span> <span class="dv">10</span></span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>weights.grad.zero_()</span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>bias.grad.zero_()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([0.])</code></pre>
+</div>
+</div>
+</section>
+<section id="first-training" class="level2">
+<h2 class="anchored" data-anchor-id="first-training">First training</h2>
+<p>If we put everything together, this is what it looks like. We will train with the whole data 20 times, which means we are using 20 epochs.</p>
+<div id="7420c162" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> init_params((<span class="dv">28</span><span class="op">*</span><span class="dv">28</span>, <span class="dv">10</span>))</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>bias <span class="op">=</span> init_params(<span class="dv">1</span>)</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>    calc_grad(trn_x, trn_y, linear)</span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a>    weights.data <span class="op">-=</span> weights.grad <span class="op">*</span> <span class="dv">10</span></span>
+<span id="cb94-6"><a href="#cb94-6" aria-hidden="true" tabindex="-1"></a>    weights.grad.zero_()</span>
+<span id="cb94-7"><a href="#cb94-7" aria-hidden="true" tabindex="-1"></a>    bias.data <span class="op">-=</span> bias.grad <span class="op">*</span> <span class="dv">10</span></span>
+<span id="cb94-8"><a href="#cb94-8" aria-hidden="true" tabindex="-1"></a>    bias.grad.zero_()</span>
+<span id="cb94-9"><a href="#cb94-9" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> linear(tst_x)</span>
+<span id="cb94-10"><a href="#cb94-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(acc(pred, tst_y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tensor(20.9500)
+tensor(38.9100)
+tensor(40.2700)
+tensor(48.3800)
+tensor(42.6600)
+tensor(51.5200)
+tensor(45.4200)
+tensor(57.6000)
+tensor(60.3500)
+tensor(62.2100)
+tensor(67.2600)
+tensor(70.8800)
+tensor(75.0300)
+tensor(71.8100)
+tensor(76.1800)
+tensor(82.2500)
+tensor(85.1200)
+tensor(85.3800)
+tensor(85.1700)
+tensor(85.1200)</code></pre>
+</div>
+</div>
+<p>We got over 80% accuracy, which is better tan our baseline using means of images from the last time, which had 66% accuracy. However, we can still make this better.</p>
+</section>
+<section id="minibatches" class="level2">
+<h2 class="anchored" data-anchor-id="minibatches">Minibatches</h2>
+<p>We updated our parameters after looking at the whole dataset. The MNIST dataset is very small, so it’s not a problem, but dataset can get really big, and it would take a long time to train this way. Another approach to train is update parameters after each image. This is not a good idea either as our model learns about one image at a time, which can lead to overfitting. That’s why we use small batches of data.</p>
+<div id="76fdfad0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>dl <span class="op">=</span> DataLoader(trn_dset, bs<span class="op">=</span><span class="dv">256</span>)</span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>xb, yb <span class="op">=</span> first(dl)</span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a>xb.shape, yb.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(torch.Size([256, 784]), torch.Size([256]))</code></pre>
+</div>
+</div>
+<p>With fastai’s DataLoader, we will have 256 items per batch. And we will do the same thing for the test set.</p>
+<div id="98ada2ee" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>tst_dl <span class="op">=</span> DataLoader(tst_dset, bs<span class="op">=</span><span class="dv">256</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="4f7f5f85" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(lr<span class="op">=</span><span class="fl">1.</span>):</span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> weights, bias</span>
+<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> xb, yb <span class="kw">in</span> dl:</span>
+<span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a>        calc_grad(xb, yb, linear)</span>
+<span id="cb99-5"><a href="#cb99-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> params:</span>
+<span id="cb99-6"><a href="#cb99-6" aria-hidden="true" tabindex="-1"></a>            p.data <span class="op">-=</span> p.grad <span class="op">*</span> lr</span>
+<span id="cb99-7"><a href="#cb99-7" aria-hidden="true" tabindex="-1"></a>            p.grad.zero_()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="9784e7c0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> validate_epoch(model):</span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>    accs <span class="op">=</span> [acc(model(xb), yb) <span class="cf">for</span> xb, yb <span class="kw">in</span> tst_dl]</span>
+<span id="cb100-3"><a href="#cb100-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">round</span>(tensor(accs).mean().item(), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="3d46f8ff" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> init_params((<span class="dv">28</span><span class="op">*</span><span class="dv">28</span>, <span class="dv">10</span>))</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>bias <span class="op">=</span> init_params(<span class="dv">1</span>)</span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">30</span>):</span>
+<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a>    train(<span class="fl">0.1</span>)</span>
+<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(validate_epoch(linear), end<span class="op">=</span><span class="st">'; '</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>15.9961; 27.8516; 39.1016; 46.3672; 51.3281; 54.8535; 57.2656; 59.4922; 61.1328; 62.5098; 63.6328; 64.5605; 65.2637; 65.9766; 66.6699; 67.2754; 67.9004; 68.418; 68.9355; 69.3164; 69.6777; 70.0586; 70.3809; 70.625; 70.8789; 71.1328; 71.3379; 71.5039; 71.6602; 71.8262; </code></pre>
+</div>
+</div>
+<p>Accuracy is not as good as using the whole dataset, but let’s keep trying more things.</p>
+</section>
+<section id="optimizer" class="level2">
+<h2 class="anchored" data-anchor-id="optimizer">Optimizer</h2>
+<p>We can use pytorch’s <code>torch.nn.Linear</code> instead of our <code>linear</code>. Good thing about using this is that we can get grab parameters easily.</p>
+<div id="f3921421" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>linear_model <span class="op">=</span> torch.nn.Linear(<span class="dv">28</span><span class="op">*</span><span class="dv">28</span>, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="18fb4f9c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>w, b <span class="op">=</span> <span class="bu">list</span>(linear_model.parameters())</span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>w.shape, b.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>(torch.Size([10, 784]), torch.Size([10]))</code></pre>
+</div>
+</div>
+<p>We define a <code>BasicOptim</code> class that has <code>step</code> and <code>zero_grad</code> methods.</p>
+<div id="065cdb7d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BasicOptim:</span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, params, lr<span class="op">=</span><span class="fl">0.01</span>):</span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.params <span class="op">=</span> params</span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lr <span class="op">=</span> lr</span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb106-6"><a href="#cb106-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(<span class="va">self</span>):</span>
+<span id="cb106-7"><a href="#cb106-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> <span class="va">self</span>.params:</span>
+<span id="cb106-8"><a href="#cb106-8" aria-hidden="true" tabindex="-1"></a>            p.data <span class="op">-=</span> p.grad <span class="op">*</span> <span class="va">self</span>.lr</span>
+<span id="cb106-9"><a href="#cb106-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb106-10"><a href="#cb106-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> zero_grad(<span class="va">self</span>):</span>
+<span id="cb106-11"><a href="#cb106-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> <span class="va">self</span>.params:</span>
+<span id="cb106-12"><a href="#cb106-12" aria-hidden="true" tabindex="-1"></a>            p.grad.zero_()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Optimizer can be used this way. And we can update our train function to use the optimizer.</p>
+<div id="faf2a7b0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> BasicOptim(<span class="bu">list</span>(linear_model.parameters()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="f83bf0bf" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(model):</span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> xb, yb <span class="kw">in</span> dl:</span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>        calc_grad(xb, yb, model)</span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>It’s good to define a function to train a model.</p>
+<div id="5319ad4d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_model(epochs, model):</span>
+<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(epochs):</span>
+<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a>        train(model)</span>
+<span id="cb109-4"><a href="#cb109-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(validate_epoch(model))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="7557101f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>train_model(<span class="dv">20</span>, linear_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>12.2266
+31.3184
+46.7578
+55.4785
+61.2988
+65.1953
+68.4375
+70.9473
+72.9297
+74.8047
+76.25
+77.5391
+78.6035
+79.6094
+80.3027
+80.9473
+81.6016
+82.2754
+82.8027
+83.2031</code></pre>
+</div>
+</div>
+<p>We can also use fastai’s SGD.</p>
+<div id="8de3a9b9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>linear_model <span class="op">=</span> nn.Linear(<span class="dv">28</span><span class="op">*</span><span class="dv">28</span>, <span class="dv">10</span>)</span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> SGD(<span class="bu">list</span>(linear_model.parameters()), <span class="fl">.01</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="7aff7e84" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>train_model(<span class="dv">20</span>, linear_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>12.2461
+32.4121
+47.0117
+55.4004
+61.1621
+65.166
+68.418
+70.8398
+72.9297
+75.1172
+76.377
+77.5488
+78.623
+79.4922
+80.3809
+81.0547
+81.582
+82.2363
+82.7148
+83.0664</code></pre>
+</div>
+</div>
+<p>Also, we can use fastai’s learner. We just need <code>DataLoaders</code>, which combines training dataloaders with test dataloaders. By using <code>learn.fit</code>, we can train easily and get a nice output, too.</p>
+<div id="89bf718a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>dls <span class="op">=</span> DataLoaders(dl, tst_dl)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="85191763" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>learn <span class="op">=</span> Learner(dls, nn.Linear(<span class="dv">28</span><span class="op">*</span><span class="dv">28</span>, <span class="dv">10</span>), loss_func<span class="op">=</span>nn.CrossEntropyLoss(), opt_func<span class="op">=</span>SGD, metrics<span class="op">=</span>acc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="f9af1715" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>learn.fit(<span class="dv">20</span>, <span class="fl">0.01</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">epoch</th>
+<th data-quarto-table-cell-role="th">train_loss</th>
+<th data-quarto-table-cell-role="th">valid_loss</th>
+<th data-quarto-table-cell-role="th">acc</th>
+<th data-quarto-table-cell-role="th">time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>1.030682</td>
+<td>2.442845</td>
+<td>10.260000</td>
+<td>00:03</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>0.756178</td>
+<td>1.755957</td>
+<td>30.840000</td>
+<td>00:04</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>0.652057</td>
+<td>1.387471</td>
+<td>45.750000</td>
+<td>00:04</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>0.593682</td>
+<td>1.172395</td>
+<td>54.570000</td>
+<td>00:03</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>0.555542</td>
+<td>1.030824</td>
+<td>60.259998</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>0.528407</td>
+<td>0.930011</td>
+<td>64.510002</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>0.507978</td>
+<td>0.854310</td>
+<td>67.820000</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>0.491943</td>
+<td>0.795262</td>
+<td>70.309998</td>
+<td>00:03</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td>0.478946</td>
+<td>0.747864</td>
+<td>72.440002</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td>0.468138</td>
+<td>0.708950</td>
+<td>74.440002</td>
+<td>00:03</td>
+</tr>
+<tr class="odd">
+<td>10</td>
+<td>0.458963</td>
+<td>0.676414</td>
+<td>75.860001</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>11</td>
+<td>0.451041</td>
+<td>0.648797</td>
+<td>77.139999</td>
+<td>00:03</td>
+</tr>
+<tr class="odd">
+<td>12</td>
+<td>0.444104</td>
+<td>0.625053</td>
+<td>78.199997</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>13</td>
+<td>0.437957</td>
+<td>0.604415</td>
+<td>79.160004</td>
+<td>00:06</td>
+</tr>
+<tr class="odd">
+<td>14</td>
+<td>0.432457</td>
+<td>0.586306</td>
+<td>80.010002</td>
+<td>00:04</td>
+</tr>
+<tr class="even">
+<td>15</td>
+<td>0.427493</td>
+<td>0.570282</td>
+<td>80.739998</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>16</td>
+<td>0.422980</td>
+<td>0.555999</td>
+<td>81.290001</td>
+<td>00:03</td>
+</tr>
+<tr class="even">
+<td>17</td>
+<td>0.418851</td>
+<td>0.543184</td>
+<td>82.040001</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>18</td>
+<td>0.415051</td>
+<td>0.531618</td>
+<td>82.360001</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>19</td>
+<td>0.411538</td>
+<td>0.521124</td>
+<td>82.720001</td>
+<td>00:04</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>We can improve this accuracy with adding another linear layers and a relu layer. We create a deeper network as long as there’s a relu layer in between each linear layer. Relu layer simply turns negative numbers to 0.</p>
+<div id="9970e63e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>net <span class="op">=</span> nn.Sequential(</span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">28</span><span class="op">*</span><span class="dv">28</span>, <span class="dv">100</span>),</span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>    nn.ReLU(),</span>
+<span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">100</span>, <span class="dv">10</span>)</span>
+<span id="cb118-5"><a href="#cb118-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We made a network of layers. Since it is deeper, we have to reduce the learning rate, which results in slower training speed. However, we can train for more epochs. Let’s try training for 100 epochs.</p>
+<div id="a7b7a533" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>learn <span class="op">=</span> Learner(dls, net, loss_func<span class="op">=</span>nn.CrossEntropyLoss(), </span>
+<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>                opt_func<span class="op">=</span>SGD, metrics<span class="op">=</span>acc)</span>
+<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a>learn.fit(<span class="dv">100</span>, <span class="fl">0.004</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">epoch</th>
+<th data-quarto-table-cell-role="th">train_loss</th>
+<th data-quarto-table-cell-role="th">valid_loss</th>
+<th data-quarto-table-cell-role="th">acc</th>
+<th data-quarto-table-cell-role="th">time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>2.257359</td>
+<td>2.186582</td>
+<td>28.950001</td>
+<td>00:04</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>1.927473</td>
+<td>2.062460</td>
+<td>16.990000</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>1.586289</td>
+<td>1.925866</td>
+<td>19.389999</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>1.296686</td>
+<td>1.757989</td>
+<td>29.430000</td>
+<td>00:04</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>1.077161</td>
+<td>1.585793</td>
+<td>37.320000</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>0.920138</td>
+<td>1.439800</td>
+<td>42.250000</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>0.809401</td>
+<td>1.322030</td>
+<td>45.910000</td>
+<td>00:08</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>0.729531</td>
+<td>1.226982</td>
+<td>48.950001</td>
+<td>00:04</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td>0.669996</td>
+<td>1.148582</td>
+<td>52.099998</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td>0.624211</td>
+<td>1.082637</td>
+<td>54.900002</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>10</td>
+<td>0.587927</td>
+<td>1.026398</td>
+<td>57.480000</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>11</td>
+<td>0.558507</td>
+<td>0.977675</td>
+<td>59.820000</td>
+<td>00:08</td>
+</tr>
+<tr class="odd">
+<td>12</td>
+<td>0.534146</td>
+<td>0.934994</td>
+<td>62.150002</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>13</td>
+<td>0.513631</td>
+<td>0.897281</td>
+<td>63.990002</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>14</td>
+<td>0.496094</td>
+<td>0.863748</td>
+<td>65.589996</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>15</td>
+<td>0.480910</td>
+<td>0.833677</td>
+<td>66.970001</td>
+<td>00:08</td>
+</tr>
+<tr class="odd">
+<td>16</td>
+<td>0.467640</td>
+<td>0.806602</td>
+<td>68.199997</td>
+<td>00:11</td>
+</tr>
+<tr class="even">
+<td>17</td>
+<td>0.455922</td>
+<td>0.782081</td>
+<td>69.519997</td>
+<td>00:09</td>
+</tr>
+<tr class="odd">
+<td>18</td>
+<td>0.445503</td>
+<td>0.759768</td>
+<td>70.489998</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>19</td>
+<td>0.436185</td>
+<td>0.739375</td>
+<td>71.389999</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>20</td>
+<td>0.427801</td>
+<td>0.720681</td>
+<td>72.199997</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>21</td>
+<td>0.420199</td>
+<td>0.703508</td>
+<td>73.080002</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>22</td>
+<td>0.413270</td>
+<td>0.687696</td>
+<td>73.760002</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>23</td>
+<td>0.406932</td>
+<td>0.673062</td>
+<td>74.489998</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>24</td>
+<td>0.401142</td>
+<td>0.659454</td>
+<td>75.080002</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>25</td>
+<td>0.395792</td>
+<td>0.646811</td>
+<td>75.730003</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>26</td>
+<td>0.390829</td>
+<td>0.635046</td>
+<td>76.250000</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>27</td>
+<td>0.386238</td>
+<td>0.624030</td>
+<td>76.760002</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>28</td>
+<td>0.381959</td>
+<td>0.613709</td>
+<td>77.419998</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>29</td>
+<td>0.377980</td>
+<td>0.604007</td>
+<td>77.910004</td>
+<td>00:09</td>
+</tr>
+<tr class="odd">
+<td>30</td>
+<td>0.374245</td>
+<td>0.594876</td>
+<td>78.379997</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>31</td>
+<td>0.370748</td>
+<td>0.586283</td>
+<td>78.849998</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>32</td>
+<td>0.367451</td>
+<td>0.578153</td>
+<td>79.239998</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>33</td>
+<td>0.364345</td>
+<td>0.570461</td>
+<td>79.610001</td>
+<td>00:06</td>
+</tr>
+<tr class="odd">
+<td>34</td>
+<td>0.361401</td>
+<td>0.563176</td>
+<td>79.919998</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>35</td>
+<td>0.358619</td>
+<td>0.556240</td>
+<td>80.260002</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>36</td>
+<td>0.355972</td>
+<td>0.549619</td>
+<td>80.610001</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>37</td>
+<td>0.353456</td>
+<td>0.543326</td>
+<td>80.839996</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>38</td>
+<td>0.351051</td>
+<td>0.537354</td>
+<td>81.120003</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>39</td>
+<td>0.348749</td>
+<td>0.531646</td>
+<td>81.330002</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>40</td>
+<td>0.346539</td>
+<td>0.526188</td>
+<td>81.589996</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>41</td>
+<td>0.344433</td>
+<td>0.520945</td>
+<td>81.839996</td>
+<td>00:09</td>
+</tr>
+<tr class="odd">
+<td>42</td>
+<td>0.342406</td>
+<td>0.515914</td>
+<td>82.000000</td>
+<td>00:04</td>
+</tr>
+<tr class="even">
+<td>43</td>
+<td>0.340465</td>
+<td>0.511089</td>
+<td>82.190002</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>44</td>
+<td>0.338599</td>
+<td>0.506455</td>
+<td>82.290001</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>45</td>
+<td>0.336791</td>
+<td>0.501979</td>
+<td>82.480003</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>46</td>
+<td>0.335052</td>
+<td>0.497672</td>
+<td>82.660004</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>47</td>
+<td>0.333371</td>
+<td>0.493508</td>
+<td>82.809998</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>48</td>
+<td>0.331753</td>
+<td>0.489475</td>
+<td>83.040001</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>49</td>
+<td>0.330158</td>
+<td>0.485592</td>
+<td>83.220001</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>50</td>
+<td>0.328622</td>
+<td>0.481835</td>
+<td>83.430000</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>51</td>
+<td>0.327128</td>
+<td>0.478212</td>
+<td>83.589996</td>
+<td>00:10</td>
+</tr>
+<tr class="odd">
+<td>52</td>
+<td>0.325685</td>
+<td>0.474692</td>
+<td>83.750000</td>
+<td>00:08</td>
+</tr>
+<tr class="even">
+<td>53</td>
+<td>0.324260</td>
+<td>0.471305</td>
+<td>83.959999</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>54</td>
+<td>0.322876</td>
+<td>0.467993</td>
+<td>84.110001</td>
+<td>00:04</td>
+</tr>
+<tr class="even">
+<td>55</td>
+<td>0.321540</td>
+<td>0.464754</td>
+<td>84.239998</td>
+<td>00:06</td>
+</tr>
+<tr class="odd">
+<td>56</td>
+<td>0.320235</td>
+<td>0.461603</td>
+<td>84.370003</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>57</td>
+<td>0.318949</td>
+<td>0.458543</td>
+<td>84.449997</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>58</td>
+<td>0.317698</td>
+<td>0.455552</td>
+<td>84.589996</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>59</td>
+<td>0.316479</td>
+<td>0.452645</td>
+<td>84.690002</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>60</td>
+<td>0.315262</td>
+<td>0.449823</td>
+<td>84.820000</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>61</td>
+<td>0.314078</td>
+<td>0.447053</td>
+<td>84.949997</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>62</td>
+<td>0.312930</td>
+<td>0.444345</td>
+<td>85.080002</td>
+<td>00:10</td>
+</tr>
+<tr class="even">
+<td>63</td>
+<td>0.311791</td>
+<td>0.441711</td>
+<td>85.230003</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>64</td>
+<td>0.310679</td>
+<td>0.439148</td>
+<td>85.300003</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>65</td>
+<td>0.309597</td>
+<td>0.436635</td>
+<td>85.400002</td>
+<td>00:10</td>
+</tr>
+<tr class="odd">
+<td>66</td>
+<td>0.308528</td>
+<td>0.434166</td>
+<td>85.540001</td>
+<td>00:08</td>
+</tr>
+<tr class="even">
+<td>67</td>
+<td>0.307462</td>
+<td>0.431768</td>
+<td>85.599998</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>68</td>
+<td>0.306423</td>
+<td>0.429406</td>
+<td>85.709999</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>69</td>
+<td>0.305414</td>
+<td>0.427090</td>
+<td>85.900002</td>
+<td>00:09</td>
+</tr>
+<tr class="odd">
+<td>70</td>
+<td>0.304411</td>
+<td>0.424796</td>
+<td>86.040001</td>
+<td>00:08</td>
+</tr>
+<tr class="even">
+<td>71</td>
+<td>0.303422</td>
+<td>0.422561</td>
+<td>86.129997</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>72</td>
+<td>0.302441</td>
+<td>0.420381</td>
+<td>86.190002</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>73</td>
+<td>0.301463</td>
+<td>0.418240</td>
+<td>86.239998</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>74</td>
+<td>0.300526</td>
+<td>0.416106</td>
+<td>86.339996</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>75</td>
+<td>0.299587</td>
+<td>0.414013</td>
+<td>86.370003</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>76</td>
+<td>0.298673</td>
+<td>0.411971</td>
+<td>86.470001</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>77</td>
+<td>0.297748</td>
+<td>0.409977</td>
+<td>86.570000</td>
+<td>00:11</td>
+</tr>
+<tr class="odd">
+<td>78</td>
+<td>0.296841</td>
+<td>0.407999</td>
+<td>86.629997</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>79</td>
+<td>0.295964</td>
+<td>0.406036</td>
+<td>86.750000</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>80</td>
+<td>0.295090</td>
+<td>0.404103</td>
+<td>86.889999</td>
+<td>00:06</td>
+</tr>
+<tr class="even">
+<td>81</td>
+<td>0.294211</td>
+<td>0.402208</td>
+<td>86.970001</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>82</td>
+<td>0.293342</td>
+<td>0.400348</td>
+<td>87.059998</td>
+<td>00:11</td>
+</tr>
+<tr class="even">
+<td>83</td>
+<td>0.292497</td>
+<td>0.398527</td>
+<td>87.160004</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>84</td>
+<td>0.291661</td>
+<td>0.396721</td>
+<td>87.199997</td>
+<td>00:10</td>
+</tr>
+<tr class="even">
+<td>85</td>
+<td>0.290825</td>
+<td>0.394935</td>
+<td>87.250000</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>86</td>
+<td>0.289988</td>
+<td>0.393174</td>
+<td>87.309998</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>87</td>
+<td>0.289170</td>
+<td>0.391404</td>
+<td>87.360001</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>88</td>
+<td>0.288363</td>
+<td>0.389678</td>
+<td>87.400002</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>89</td>
+<td>0.287559</td>
+<td>0.387958</td>
+<td>87.449997</td>
+<td>00:05</td>
+</tr>
+<tr class="odd">
+<td>90</td>
+<td>0.286770</td>
+<td>0.386272</td>
+<td>87.529999</td>
+<td>00:07</td>
+</tr>
+<tr class="even">
+<td>91</td>
+<td>0.285985</td>
+<td>0.384583</td>
+<td>87.550003</td>
+<td>00:04</td>
+</tr>
+<tr class="odd">
+<td>92</td>
+<td>0.285202</td>
+<td>0.382913</td>
+<td>87.599998</td>
+<td>00:04</td>
+</tr>
+<tr class="even">
+<td>93</td>
+<td>0.284413</td>
+<td>0.381289</td>
+<td>87.699997</td>
+<td>00:06</td>
+</tr>
+<tr class="odd">
+<td>94</td>
+<td>0.283646</td>
+<td>0.379661</td>
+<td>87.739998</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>95</td>
+<td>0.282881</td>
+<td>0.378050</td>
+<td>87.779999</td>
+<td>00:07</td>
+</tr>
+<tr class="odd">
+<td>96</td>
+<td>0.282145</td>
+<td>0.376432</td>
+<td>87.809998</td>
+<td>00:05</td>
+</tr>
+<tr class="even">
+<td>97</td>
+<td>0.281396</td>
+<td>0.374831</td>
+<td>87.860001</td>
+<td>00:06</td>
+</tr>
+<tr class="odd">
+<td>98</td>
+<td>0.280646</td>
+<td>0.373255</td>
+<td>87.919998</td>
+<td>00:04</td>
+</tr>
+<tr class="even">
+<td>99</td>
+<td>0.279895</td>
+<td>0.371665</td>
+<td>87.949997</td>
+<td>00:05</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>After 100 epochs, we reached over 87% accuracy!</p>
+<p>So, we completed the project. That was very fun. Thanks for reading.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/galopyz\.github\.io\/delicious-nbdev");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="galopyz/delicious-nbdev" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/galopyz/delicious-nbdev/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

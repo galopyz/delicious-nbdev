@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="galopy">
+<meta name="dcterms.date" content="2025-02-23">
+
+<title>Building LLM part2-Processing Text – delicious-nbdev</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-a31b994c8e6b22d286c5759f252fa97b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
+<meta property="og:title" content="Building LLM part2-Processing Text – delicious-nbdev">
+<meta property="og:description" content="Just one more bite…">
+<meta property="og:image" content="https://galopyz.github.io/delicious-nbdev/blog/posts/2025-02-23-bllms_2/cat_reading.jpg">
+<meta property="og:site_name" content="delicious-nbdev">
+<meta property="og:image:alt" content="Cat reading a book in a library.">
+<meta name="twitter:title" content="Building LLM part2-Processing Text – delicious-nbdev">
+<meta name="twitter:description" content="Just one more bite…">
+<meta name="twitter:image" content="https://galopyz.github.io/delicious-nbdev/blog/posts/2025-02-23-bllms_2/cat_reading.jpg">
+<meta name="twitter:image:alt" content="Cat reading a book in a library.">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">delicious-nbdev</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../blog/index.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/galopyz/delicious-nbdev"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Blog</li><li class="breadcrumb-item"><a href="../../../blog/posts/2025-02-23-bllms_2/index.html">Building LLM part2-Processing Text</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Blog</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+ <span class="menu-text">blog/posts/2026-01-12-building_llm_agent/index.ipynb</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-10-26-why-build-llm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Why Build a Language Model from Scratch?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-09-28-kv_cache/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HuggingFace KV cache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-09-21-meselson-stahl/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Meselson-Stahl Experiment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-08-21-my-experience-with-solveit/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">My experience with solveit</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-07-17-pass@k/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">What is pass@k evaluation metric?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-07-05-gemini_tutorial/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beginner’s guide to gemini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-06-03-instruct_gpt/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How InstructGPT is trained</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-23-bllms_2/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Building LLM part2-Processing Text</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-14-bllms_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Building LLM part1-Intro_to_LLMs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-09-computational_biology/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A Student’s Perspective on Computational Biology</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-01-17-how_to_solve_it/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to solve it</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2024-01-16-Resnet_part2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resnet Part2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2024-01-13-MiniAI_utilities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniAI Utilities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-12-04-Resnet/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resnet</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-11-17-Scheduler/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduler</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-11-06-Optimizer/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Optimizer</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-10-19-Initialization_part_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialization part 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-10-10-Initialization_part_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialization part 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-26-Pytorch_Hooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Pytorch Hooks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-23-Convolutions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Convolutional Neural Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-09-Learner_part_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learner Pt.2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-08-30-Learner_part_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learner Pt.1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-08-25-Callbacks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Callback</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-07-08-Hugging-Face-Features/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hugging Face Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-03-05-Fruit_Multi_pt2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fruit Multi-Classifier pt.2 Deployment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-03-05-Fruit_Multi_pt1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fruit Multi-Classifier pt.1 Training</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-25-MNIST_NN/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST Neural Nets</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-20-MNIST_base/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST base</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-19-MNIST_FastAI/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST in FastAI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-07-saving_jupyter_config/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving Jupyter configuration on Paperspace.</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-06-paddy1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Intro to Paddy competition</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-03-live_coding7/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 7</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-30-live_coding6/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 6</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-27-live_coding5/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 5</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-16-live_coding4/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 4</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-15-live_coding3/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 3</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-14-live_coding2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-12-live_coding1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-11-alien-vs.-ghost-pt2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alien vs.&nbsp;Ghost Pt.2 Deploying</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-07-alien-vs.-ghost-pt1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alien vs.&nbsp;Ghost Pt.1 Training</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#tokenizing-text" id="toc-tokenizing-text" class="nav-link" data-scroll-target="#tokenizing-text">Tokenizing Text</a>
+  <ul class="collapse">
+  <li><a href="#preprocessing-text" id="toc-preprocessing-text" class="nav-link" data-scroll-target="#preprocessing-text">Preprocessing text</a></li>
+  <li><a href="#creating-vocab" id="toc-creating-vocab" class="nav-link" data-scroll-target="#creating-vocab">Creating vocab</a></li>
+  <li><a href="#encoding-and-decoding" id="toc-encoding-and-decoding" class="nav-link" data-scroll-target="#encoding-and-decoding">Encoding and Decoding</a></li>
+  <li><a href="#adding-special-tokens" id="toc-adding-special-tokens" class="nav-link" data-scroll-target="#adding-special-tokens">Adding special tokens</a></li>
+  </ul></li>
+  <li><a href="#creating-dataloader" id="toc-creating-dataloader" class="nav-link" data-scroll-target="#creating-dataloader">Creating dataloader</a></li>
+  <li><a href="#what-are-embeddings" id="toc-what-are-embeddings" class="nav-link" data-scroll-target="#what-are-embeddings">What Are Embeddings?</a>
+  <ul class="collapse">
+  <li><a href="#why-do-we-need-embeddings" id="toc-why-do-we-need-embeddings" class="nav-link" data-scroll-target="#why-do-we-need-embeddings">Why Do We Need Embeddings?</a></li>
+  <li><a href="#embeddings-beyond-language-models" id="toc-embeddings-beyond-language-models" class="nav-link" data-scroll-target="#embeddings-beyond-language-models">Embeddings Beyond Language Models</a></li>
+  <li><a href="#creating-embeddings-in-practice" id="toc-creating-embeddings-in-practice" class="nav-link" data-scroll-target="#creating-embeddings-in-practice">Creating Embeddings in Practice</a></li>
+  <li><a href="#the-position-problem" id="toc-the-position-problem" class="nav-link" data-scroll-target="#the-position-problem">The Position Problem</a></li>
+  <li><a href="#trade-offs-and-challenges" id="toc-trade-offs-and-challenges" class="nav-link" data-scroll-target="#trade-offs-and-challenges">Trade-offs and Challenges</a></li>
+  </ul></li>
+  <li><a href="#the-future-of-embeddings" id="toc-the-future-of-embeddings" class="nav-link" data-scroll-target="#the-future-of-embeddings">The Future of Embeddings</a>
+  <ul class="collapse">
+  <li><a href="#using-embeddings" id="toc-using-embeddings" class="nav-link" data-scroll-target="#using-embeddings">Using Embeddings</a></li>
+  <li><a href="#positional-embeddings" id="toc-positional-embeddings" class="nav-link" data-scroll-target="#positional-embeddings">Positional Embeddings</a></li>
+  </ul></li>
+  <li><a href="#byte-pair-encoding-bpe" id="toc-byte-pair-encoding-bpe" class="nav-link" data-scroll-target="#byte-pair-encoding-bpe">Byte pair encoding (BPE)</a>
+  <ul class="collapse">
+  <li><a href="#how-bpe-works" id="toc-how-bpe-works" class="nav-link" data-scroll-target="#how-bpe-works">How BPE works</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/galopyz/delicious-nbdev/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Blog</li><li class="breadcrumb-item"><a href="../../../blog/posts/2025-02-23-bllms_2/index.html">Building LLM part2-Processing Text</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Building LLM part2-Processing Text</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>galopy </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 23, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<p>In this blog, we will go through chapter 2 of “Build a Large Language Model From Scratch” by Sebastian Raschka. This chapter is about working with text. It goes over preparing text for LLMs, splitting text into word and subword tokens, byte pair encoding, sliding window for dataloader sampling, and converting tokens into embeddings.</p>
+<p>Follow along on <a href="https://colab.research.google.com/github/galopyz/delicious-nbdev/blob/main/nbs/blog/colab/bllm2_process_text.ipynb">google colab</a>!</p>
+<p><img src="cat_reading.jpg" alt="Cat reading a book in a library." width="400"> Image generated from copilot.</p>
+<p>Here is an outline:</p>
+<ul>
+<li>Intorduction</li>
+<li>Tokenizing text
+<ul>
+<li>Preprocessing text to split words and special characters.</li>
+<li>Creating vocab</li>
+<li>Encoding and decoding text using the vocab.</li>
+<li>Adding special tokens for encoding/decoding (such as &lt;|unk|&gt;, &lt;|endoftext|&gt;)</li>
+</ul></li>
+<li>Creating dataloader
+<ul>
+<li>Parameters to play with: batch_size, max_length, stride, shuffle, drop_last, num_workers</li>
+</ul></li>
+<li>What is an embedding?
+<ul>
+<li>Talk about embedding briefly in LLMs.</li>
+<li>Why use embedding?</li>
+<li>Examples of using embeddings in other fields.</li>
+<li>Pros and cons of using embedding.</li>
+<li>Creating embedding</li>
+<li>Positional embedding</li>
+</ul></li>
+<li>Byte pair encoding</li>
+</ul>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In the last blog, we went over an introduction to Large Language Models (LLMs). In this blog, we will go over preparing text data for the training. First, we tokenize the text into numbers. Second, we build the dataloader. Lastly, we turn it into embeddings. As a bonus, we will also go over byte pair encoding in the end. Materials for this blog are from chapter 2 of “Build a Large Language Model From Scratch” by Sebastian Raschka with some adjustments. And the images and code are from the book and the author’s <a href="https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02">github repo</a>.</p>
+</section>
+<section id="tokenizing-text" class="level2">
+<h2 class="anchored" data-anchor-id="tokenizing-text">Tokenizing Text</h2>
+<p>There are many ways to tokenize text, but we will keep it simple. We will only split the text into words, punctuations, and special characters and then convert them into numbers. This is called encoding. On the other hand, decoding is converting the numbers back into the text. We will use a dictionary to map each token to a number, and this will become a vocabulary. We will also add some special tokens to the vocabulary, such as <code>&lt;|unk|&gt;</code> for unknown tokens. Then we can test our encoding and decoding.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Byte Pair Encoding</p>
+<p>In practice, texts are not tokenized by each word as we did here. This is only for demonstration purpose to keep it simple and easy to understand. One drawback from this technique is unknown words. There are so many vocabulary words, and training would cost so much resources. To solve this problem, texts can be tokenized by each alphabet. Problem with this is that individual alphabet does not carry enough information, and it would have to train more.</p>
+<p>This is where Byte Pair Encoding (BPE) comes in. This is in the middle ground between the two. We will go over BPE at the end of this blog.</p>
+</div>
+</div>
+<section id="preprocessing-text" class="level3">
+<h3 class="anchored" data-anchor-id="preprocessing-text">Preprocessing text</h3>
+<p>In preprocessing step, we will split the text into words, punctuations, and special characters. We will use the <code>re</code> module to split the text into tokens.</p>
+<div id="9f1db629" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The cat sat on the mat!"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> re.split(<span class="vs">r'</span><span class="kw">(</span><span class="dv">\s</span><span class="kw">)</span><span class="vs">'</span>, text)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>['The', ' ', 'cat', ' ', 'sat', ' ', 'on', ' ', 'the', ' ', 'mat!']</code></pre>
+</div>
+</div>
+<p>Let’s also split on special characters and punctuation.</p>
+<div id="98426cd4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> re.split(<span class="vs">r'</span><span class="kw">(</span><span class="pp">[,.:;?_!"()</span><span class="ch">\'</span><span class="pp">]</span><span class="cf">|</span><span class="vs">--</span><span class="cf">|</span><span class="dv">\s</span><span class="kw">)</span><span class="vs">'</span>, text)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>['The', ' ', 'cat', ' ', 'sat', ' ', 'on', ' ', 'the', ' ', 'mat', '!', '']</code></pre>
+</div>
+</div>
+<p>We can remove the white space using list comprehension.</p>
+<div id="5509ea5a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> re.split(<span class="vs">r'</span><span class="kw">(</span><span class="pp">[,.:;?_!"()</span><span class="ch">\'</span><span class="pp">]</span><span class="cf">|</span><span class="vs">--</span><span class="cf">|</span><span class="dv">\s</span><span class="kw">)</span><span class="vs">'</span>, text)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>[o.strip() <span class="cf">for</span> o <span class="kw">in</span> res <span class="cf">if</span> o.strip()]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>['The', 'cat', 'sat', 'on', 'the', 'mat', '!']</code></pre>
+</div>
+</div>
+<p>Let’s use a bigger text.</p>
+<div id="afc9e343" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>raw_text <span class="op">=</span> <span class="st">'''The cat sat on the mat! She saw a red ball rolling by, and jumped up to chase it. "Meow?" she wondered, looking at the ball that was now under the table @ 123 Main Street.'''</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>raw_text</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'The cat sat on the mat! She saw a red ball rolling by, and jumped up to chase it. "Meow?" she wondered, looking at the ball that was now under the table @ 123 Main Street.'</code></pre>
+</div>
+</div>
+<div id="2716ad84" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>prep <span class="op">=</span> re.split(<span class="vs">r'</span><span class="kw">(</span><span class="pp">[,.:;?_!"()</span><span class="ch">\'</span><span class="pp">]</span><span class="cf">|</span><span class="vs">--</span><span class="cf">|</span><span class="dv">\s</span><span class="kw">)</span><span class="vs">'</span>, raw_text)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>prep <span class="op">=</span> [o.strip() <span class="cf">for</span> o <span class="kw">in</span> prep <span class="cf">if</span> o.strip()]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>prep[:<span class="dv">15</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>['The',
+ 'cat',
+ 'sat',
+ 'on',
+ 'the',
+ 'mat',
+ '!',
+ 'She',
+ 'saw',
+ 'a',
+ 'red',
+ 'ball',
+ 'rolling',
+ 'by',
+ ',']</code></pre>
+</div>
+</div>
+</section>
+<section id="creating-vocab" class="level3">
+<h3 class="anchored" data-anchor-id="creating-vocab">Creating vocab</h3>
+<p>Now that we have preprocessed the text, we can create a vocabulary. The vocabulary is a mapping from each token to a number. We will use a dictionary to store the mapping.</p>
+<div id="cbd1dc29" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>all_words <span class="op">=</span> <span class="bu">sorted</span>(<span class="bu">set</span>(prep))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>vocab_size <span class="op">=</span> <span class="bu">len</span>(all_words)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>vocab_size</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>38</code></pre>
+</div>
+</div>
+<div id="bc381b81" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> {token:integer <span class="cf">for</span> integer,token <span class="kw">in</span> <span class="bu">enumerate</span>(all_words)}</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>vocab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'!': 0,
+ '"': 1,
+ ',': 2,
+ '.': 3,
+ '123': 4,
+ '?': 5,
+ '@': 6,
+ 'Main': 7,
+ 'Meow': 8,
+ 'She': 9,
+ 'Street': 10,
+ 'The': 11,
+ 'a': 12,
+ 'and': 13,
+ 'at': 14,
+ 'ball': 15,
+ 'by': 16,
+ 'cat': 17,
+ 'chase': 18,
+ 'it': 19,
+ 'jumped': 20,
+ 'looking': 21,
+ 'mat': 22,
+ 'now': 23,
+ 'on': 24,
+ 'red': 25,
+ 'rolling': 26,
+ 'sat': 27,
+ 'saw': 28,
+ 'she': 29,
+ 'table': 30,
+ 'that': 31,
+ 'the': 32,
+ 'to': 33,
+ 'under': 34,
+ 'up': 35,
+ 'was': 36,
+ 'wondered': 37}</code></pre>
+</div>
+</div>
+<p>We also need a way to reverse the mapping.</p>
+<div id="b0911fac" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>rev_vocab <span class="op">=</span> {i:s <span class="cf">for</span> s,i <span class="kw">in</span> vocab.items()}</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>rev_vocab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{0: '!',
+ 1: '"',
+ 2: ',',
+ 3: '.',
+ 4: '123',
+ 5: '?',
+ 6: '@',
+ 7: 'Main',
+ 8: 'Meow',
+ 9: 'She',
+ 10: 'Street',
+ 11: 'The',
+ 12: 'a',
+ 13: 'and',
+ 14: 'at',
+ 15: 'ball',
+ 16: 'by',
+ 17: 'cat',
+ 18: 'chase',
+ 19: 'it',
+ 20: 'jumped',
+ 21: 'looking',
+ 22: 'mat',
+ 23: 'now',
+ 24: 'on',
+ 25: 'red',
+ 26: 'rolling',
+ 27: 'sat',
+ 28: 'saw',
+ 29: 'she',
+ 30: 'table',
+ 31: 'that',
+ 32: 'the',
+ 33: 'to',
+ 34: 'under',
+ 35: 'up',
+ 36: 'was',
+ 37: 'wondered'}</code></pre>
+</div>
+</div>
+</section>
+<section id="encoding-and-decoding" class="level3">
+<h3 class="anchored" data-anchor-id="encoding-and-decoding">Encoding and Decoding</h3>
+<p>Now that we have the vocabulary, we can encode and decode text.</p>
+<div id="18e0fb1b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> [vocab[s] <span class="cf">for</span> s <span class="kw">in</span> prep]</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>tokens[:<span class="dv">10</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[11, 17, 27, 24, 32, 22, 0, 9, 28, 12]</code></pre>
+</div>
+</div>
+<p>And here is how we decode. We first turn it back into a list of tokens, then join them together.</p>
+<div id="3803dee2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>strs <span class="op">=</span> [rev_vocab[i] <span class="cf">for</span> i <span class="kw">in</span> tokens]</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>strs[:<span class="dv">10</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>['The', 'cat', 'sat', 'on', 'the', 'mat', '!', 'She', 'saw', 'a']</code></pre>
+</div>
+</div>
+<div id="06ea92ae" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>strs <span class="op">=</span> <span class="st">' '</span>.join(strs)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>strs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'The cat sat on the mat ! She saw a red ball rolling by , and jumped up to chase it . " Meow ? " she wondered , looking at the ball that was now under the table @ 123 Main Street .'</code></pre>
+</div>
+</div>
+<p>There are extra spaces in the decoded text. Let’s remove them using <code>re.sub</code>.</p>
+<div id="4a337722" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>re.sub(<span class="vs">r'</span><span class="dv">\s</span><span class="op">+</span><span class="kw">(</span><span class="pp">[,.?!"()</span><span class="ch">\'</span><span class="pp">]</span><span class="kw">)</span><span class="vs">'</span>, <span class="vs">r'</span><span class="ch">\1</span><span class="vs">'</span>, strs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'The cat sat on the mat! She saw a red ball rolling by, and jumped up to chase it." Meow?" she wondered, looking at the ball that was now under the table @ 123 Main Street.'</code></pre>
+</div>
+</div>
+<div id="e60fbc38" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>raw_text</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'The cat sat on the mat! She saw a red ball rolling by, and jumped up to chase it. "Meow?" she wondered, looking at the ball that was now under the table @ 123 Main Street.'</code></pre>
+</div>
+</div>
+<p>Let’s compare it to the original text. It looks pretty good, except <code>it." Meow?"</code>. It should be <code>it. "Meow?"</code>. But it’s not a big deal. We can fix it later.</p>
+<p>Putting it all together, here is <code>SimpleTokenizerV1</code> class that we can use to encode and decode text.</p>
+<div id="90dd9b7a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SimpleTokenizerV1:</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab):</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.str_to_int <span class="op">=</span> vocab</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.int_to_str <span class="op">=</span> {i:s <span class="cf">for</span> s,i <span class="kw">in</span> vocab.items()}</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> encode(<span class="va">self</span>, text):</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        preprocessed <span class="op">=</span> re.split(<span class="vs">r'</span><span class="kw">(</span><span class="pp">[,.:;?_!"()</span><span class="ch">\'</span><span class="pp">]</span><span class="cf">|</span><span class="vs">--</span><span class="cf">|</span><span class="dv">\s</span><span class="kw">)</span><span class="vs">'</span>, text)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        preprocessed <span class="op">=</span> [item.strip() <span class="cf">for</span> item <span class="kw">in</span> preprocessed <span class="cf">if</span> item.strip()]</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [<span class="va">self</span>.str_to_int[s] <span class="cf">for</span> s <span class="kw">in</span> preprocessed]</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> decode(<span class="va">self</span>, ids):</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> <span class="st">" "</span>.join([<span class="va">self</span>.int_to_str[i] <span class="cf">for</span> i <span class="kw">in</span> ids])</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> re.sub(<span class="vs">r'</span><span class="dv">\s</span><span class="op">+</span><span class="kw">(</span><span class="pp">[,.?!"()</span><span class="ch">\'</span><span class="pp">]</span><span class="kw">)</span><span class="vs">'</span>, <span class="vs">r'</span><span class="ch">\1</span><span class="vs">'</span>, text)</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> text</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="34671280" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> SimpleTokenizerV1(vocab)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>tokenizer.encode(raw_text)[:<span class="dv">10</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[11, 17, 27, 24, 32, 22, 0, 9, 28, 12]</code></pre>
+</div>
+</div>
+<div id="0270e077" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>tokens[:<span class="dv">10</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[11, 17, 27, 24, 32, 22, 0, 9, 28, 12]</code></pre>
+</div>
+</div>
+<div id="46e69ef0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>tokenizer.decode(tokenizer.encode(raw_text))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'The cat sat on the mat! She saw a red ball rolling by, and jumped up to chase it." Meow?" she wondered, looking at the ball that was now under the table @ 123 Main Street.'</code></pre>
+</div>
+</div>
+</section>
+<section id="adding-special-tokens" class="level3">
+<h3 class="anchored" data-anchor-id="adding-special-tokens">Adding special tokens</h3>
+<p>There are some special tokens such as <code>&lt;|unk|&gt;</code> that we need to add to the vocabulary. We will add them to the vocabulary and update the tokenizer.</p>
+<p>Special tokens in LLMs serve specific functional purposes and are typically added to the vocabulary with reserved IDs (usually at the beginning). Here are the most common ones:</p>
+<ol type="1">
+<li><code>[UNK]</code> or <code>&lt;|unk|&gt;</code> - Used for unknown tokens not in vocabulary</li>
+<li><code>[PAD]</code> - Used to pad sequences to a fixed length in a batch</li>
+<li><code>[BOS]</code> or <code>&lt;|startoftext|&gt;</code> - Marks the beginning of a sequence</li>
+<li><code>[EOS]</code> or <code>&lt;|endoftext|&gt;</code> - Marks the end of a sequence</li>
+<li><code>[SEP]</code> - Used to separate different segments of text (common in BERT)</li>
+<li><code>[CLS]</code> - Special classification token (used in BERT-like models)</li>
+<li><code>[MASK]</code> - Used for masked language modeling tasks</li>
+</ol>
+<p>These tokens are crucial because they: - Help models understand sequence boundaries - Enable batch processing of variable-length sequences - Support specific training objectives - Handle out-of-vocabulary words</p>
+<p>There are many special tokens. They help the model understand the sequence boundaries, handle out-of-vocabulary words, and support specific training objectives. However, GPT-2 only used <code>&lt;|endoftext|&gt;</code> because it could also be used for padding. This token is also used for separating documents, such as wikipedia articles. It signals the model that the article ended.</p>
+<p>Our tokenizer fails when it encounters a token that is not in the vocabulary. Let’s add a special token <code>&lt;|unk|&gt;</code> to the vocabulary and update the tokenizer.</p>
+<div id="3fe05cab" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>tokenizer.encode(<span class="st">"wassup yo"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-error">
+<div class="ansi-escaped-output">
+<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">KeyError</span>                                  Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[18], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">tokenizer</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">encode</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">wassup yo</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">)</span>
+
+Cell <span class="ansi-green-fg">In[14], line 9</span>, in <span class="ansi-cyan-fg">SimpleTokenizerV1.encode</span><span class="ansi-blue-fg">(self, text)</span>
+<span class="ansi-green-fg ansi-bold">      7</span> preprocessed <span style="color:rgb(98,98,98)">=</span> re<span style="color:rgb(98,98,98)">.</span>split(<span style="color:rgb(175,0,0)">r</span><span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">([,.:;?_!</span><span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">()</span><span style="font-weight:bold;color:rgb(175,95,0)">\'</span><span style="color:rgb(175,0,0)">]|--|</span><span style="color:rgb(175,0,0)">\</span><span style="color:rgb(175,0,0)">s)</span><span style="color:rgb(175,0,0)">'</span>, text)
+<span class="ansi-green-fg ansi-bold">      8</span> preprocessed <span style="color:rgb(98,98,98)">=</span> [item<span style="color:rgb(98,98,98)">.</span>strip() <span style="font-weight:bold;color:rgb(0,135,0)">for</span> item <span style="font-weight:bold;color:rgb(175,0,255)">in</span> preprocessed <span style="font-weight:bold;color:rgb(0,135,0)">if</span> item<span style="color:rgb(98,98,98)">.</span>strip()]
+<span class="ansi-green-fg">----&gt; 9</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">[</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">str_to_int</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">s</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg"> </span><span style="font-weight:bold;color:rgb(0,135,0)" class="ansi-yellow-bg">for</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">s</span><span class="ansi-yellow-bg"> </span><span style="font-weight:bold;color:rgb(175,0,255)" class="ansi-yellow-bg">in</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">preprocessed</span><span class="ansi-yellow-bg">]</span>
+
+Cell <span class="ansi-green-fg">In[14], line 9</span>, in <span class="ansi-cyan-fg">&lt;listcomp&gt;</span><span class="ansi-blue-fg">(.0)</span>
+<span class="ansi-green-fg ansi-bold">      7</span> preprocessed <span style="color:rgb(98,98,98)">=</span> re<span style="color:rgb(98,98,98)">.</span>split(<span style="color:rgb(175,0,0)">r</span><span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">([,.:;?_!</span><span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">()</span><span style="font-weight:bold;color:rgb(175,95,0)">\'</span><span style="color:rgb(175,0,0)">]|--|</span><span style="color:rgb(175,0,0)">\</span><span style="color:rgb(175,0,0)">s)</span><span style="color:rgb(175,0,0)">'</span>, text)
+<span class="ansi-green-fg ansi-bold">      8</span> preprocessed <span style="color:rgb(98,98,98)">=</span> [item<span style="color:rgb(98,98,98)">.</span>strip() <span style="font-weight:bold;color:rgb(0,135,0)">for</span> item <span style="font-weight:bold;color:rgb(175,0,255)">in</span> preprocessed <span style="font-weight:bold;color:rgb(0,135,0)">if</span> item<span style="color:rgb(98,98,98)">.</span>strip()]
+<span class="ansi-green-fg">----&gt; 9</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> [<span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">str_to_int</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">s</span><span class="ansi-yellow-bg">]</span> <span style="font-weight:bold;color:rgb(0,135,0)">for</span> s <span style="font-weight:bold;color:rgb(175,0,255)">in</span> preprocessed]
+
+<span class="ansi-red-fg">KeyError</span>: 'wassup'</pre>
+</div>
+</div>
+</div>
+<div id="34d24190" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(vocab)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>38</code></pre>
+</div>
+</div>
+<div id="84c84484" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>vocab[<span class="st">'&lt;|endoftext|&gt;'</span>] <span class="op">=</span> <span class="bu">len</span>(vocab)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>vocab[<span class="st">'&lt;|unk|&gt;'</span>] <span class="op">=</span> <span class="bu">len</span>(vocab)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>vocab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'!': 0,
+ '"': 1,
+ ',': 2,
+ '.': 3,
+ '123': 4,
+ '?': 5,
+ '@': 6,
+ 'Main': 7,
+ 'Meow': 8,
+ 'She': 9,
+ 'Street': 10,
+ 'The': 11,
+ 'a': 12,
+ 'and': 13,
+ 'at': 14,
+ 'ball': 15,
+ 'by': 16,
+ 'cat': 17,
+ 'chase': 18,
+ 'it': 19,
+ 'jumped': 20,
+ 'looking': 21,
+ 'mat': 22,
+ 'now': 23,
+ 'on': 24,
+ 'red': 25,
+ 'rolling': 26,
+ 'sat': 27,
+ 'saw': 28,
+ 'she': 29,
+ 'table': 30,
+ 'that': 31,
+ 'the': 32,
+ 'to': 33,
+ 'under': 34,
+ 'up': 35,
+ 'was': 36,
+ 'wondered': 37,
+ '&lt;|endoftext|&gt;': 38,
+ '&lt;|unk|&gt;': 39}</code></pre>
+</div>
+</div>
+<p>Now, we can update our encoder to use special tokens.</p>
+<div id="30560db2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SimpleTokenizerV2:</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab):</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.str_to_int <span class="op">=</span> vocab</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.int_to_str <span class="op">=</span> {i:s <span class="cf">for</span> s,i <span class="kw">in</span> vocab.items()}</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> encode(<span class="va">self</span>, text):</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>        prep <span class="op">=</span> re.split(<span class="vs">r'</span><span class="kw">(</span><span class="pp">[,.:;?_!"()</span><span class="ch">\'</span><span class="pp">]</span><span class="cf">|</span><span class="vs">--</span><span class="cf">|</span><span class="dv">\s</span><span class="kw">)</span><span class="vs">'</span>, text)</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>        prep <span class="op">=</span> [item.strip() <span class="cf">for</span> item <span class="kw">in</span> prep <span class="cf">if</span> item.strip()]</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>        prep <span class="op">=</span> [item <span class="cf">if</span> item <span class="kw">in</span> <span class="va">self</span>.str_to_int <span class="cf">else</span> <span class="st">"&lt;|unk|&gt;"</span> <span class="cf">for</span> item <span class="kw">in</span> prep]</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [<span class="va">self</span>.str_to_int[s] <span class="cf">for</span> s <span class="kw">in</span> prep]</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> decode(<span class="va">self</span>, ids):</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> <span class="st">" "</span>.join([<span class="va">self</span>.int_to_str[i] <span class="cf">for</span> i <span class="kw">in</span> ids])</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> re.sub(<span class="vs">r'</span><span class="dv">\s</span><span class="op">+</span><span class="kw">(</span><span class="pp">[,.?!"()</span><span class="ch">\'</span><span class="pp">]</span><span class="kw">)</span><span class="vs">'</span>, <span class="vs">r'</span><span class="ch">\1</span><span class="vs">'</span>, text)</span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> text</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="e5283322" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> SimpleTokenizerV2(vocab)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>text1 <span class="op">=</span> <span class="st">"Wassup yo, how's it going?"</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>text2 <span class="op">=</span> <span class="st">"The cat sat on the mat! She saw a red ball rolling by, and jumped up to chase it. </span><span class="ch">\"</span><span class="st">Meow?</span><span class="ch">\"</span><span class="st"> she wondered"</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">" &lt;|endoftext|&gt; "</span>.join((text1, text2))</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Wassup yo, how's it going? &lt;|endoftext|&gt; The cat sat on the mat! She saw a red ball rolling by, and jumped up to chase it. "Meow?" she wondered</code></pre>
+</div>
+</div>
+<div id="38ef0e03" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>tokenizer.encode(text)[:<span class="dv">10</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[39, 39, 2, 39, 39, 39, 19, 39, 5, 38]</code></pre>
+</div>
+</div>
+<div id="0db7c2ab" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>tokenizer.decode(tokenizer.encode(text))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'&lt;|unk|&gt; &lt;|unk|&gt;, &lt;|unk|&gt; &lt;|unk|&gt; &lt;|unk|&gt; it &lt;|unk|&gt;? &lt;|endoftext|&gt; The cat sat on the mat! She saw a red ball rolling by, and jumped up to chase it." Meow?" she wondered'</code></pre>
+</div>
+</div>
+<p>Great. We can encode and decode without getting an error from the vocabulary. GPT-2 did not use the <code>&lt;|unk|&gt;</code> token. Instead, it used a byte pair encoding method to handle out-of-vocabulary words. We will go over byte pair encoding in the end.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Evil <code>&lt;|unk|&gt;</code> token</p>
+<p>Why would we use Byte Pair Encoding (BPE) when we could use <code>&lt;|unk|&gt;</code> token to encode? We’re not getting any error anymore so the problem is solved, right? Actually, there is another problem. When training Large Language Models, if the model sees many unknown tokens in the training data, it doesn’t learn very much.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="creating-dataloader" class="level2">
+<h2 class="anchored" data-anchor-id="creating-dataloader">Creating dataloader</h2>
+<p>Now that we have tokenized the text, we can create a dataloader. Using dataloader is an easy way to turn the encoded text into batches of data. In each batch, we have a sequence of tokens for x and another for y. The x sequence is the input, and the y sequence is the output. The y sequence is the same as the x sequence, but shifted by one token. This is because we want the model to predict the next token given the previous tokens. The dataloader is also responsible for batching the data and shuffling it.</p>
+<p><img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/12.webp" width="400px"></p>
+<div id="eb1410b0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> tokenizer.encode(raw_text)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>tokens[:<span class="dv">10</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[11, 17, 27, 24, 32, 22, 0, 9, 28, 12]</code></pre>
+</div>
+</div>
+<p>We set the <code>context_size</code> as 4. This means x and y are 4 tokens long. This is only a toy example, but in GPT, context size is way bigger. For example, GPT-2 has a context size of 1024. This means that the model can see up to 1024 tokens in the past. This is why GPT-2 is so good at generating text. It can see the context of the text and generate text that is more coherent. However, longer context size means more memory usage.</p>
+<div id="8479786c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>context_size <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> tokens[:context_size]</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> tokens[<span class="dv">1</span>:context_size<span class="op">+</span><span class="dv">1</span>]</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"x: </span><span class="sc">{</span>x<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"y:      </span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>x: [11, 17, 27, 24]
+y:      [17, 27, 24, 32]</code></pre>
+</div>
+</div>
+<p>When training, this is what the model sees as x and y:</p>
+<div id="37a255ee" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, context_size<span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> tokens[:i]</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> tokens[i]</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(x, <span class="st">"----&gt;"</span>, y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[11] ----&gt; 17
+[11, 17] ----&gt; 27
+[11, 17, 27] ----&gt; 24
+[11, 17, 27, 24] ----&gt; 32</code></pre>
+</div>
+</div>
+<p>For more readability, decoded version is here:</p>
+<div id="f7f84ada" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, context_size<span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> tokens[:i]</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> tokens[i]</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(tokenizer.decode(x), <span class="st">"----&gt;"</span>, tokenizer.decode([y]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The ----&gt; cat
+The cat ----&gt; sat
+The cat sat ----&gt; on
+The cat sat on ----&gt; the</code></pre>
+</div>
+</div>
+<p>Let’s create a pytorch dataset. As long as we have <code>__len__</code> and <code>__getitem__</code>, we can use it with pytorch dataloader.</p>
+<div id="69b95c9d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GPTDatasetV1:</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, txt, tokenizer, max_length, stride):</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.input_ids <span class="op">=</span> []</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.target_ids <span class="op">=</span> []</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>        token_ids <span class="op">=</span> tokenizer.encode(txt, allowed_special<span class="op">=</span>{<span class="st">"&lt;|endoftext|&gt;"</span>})</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Use a sliding window to chunk the book into overlapping sequences of max_length</span></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(token_ids) <span class="op">-</span> max_length, stride):</span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>            input_chunk <span class="op">=</span> token_ids[i:i <span class="op">+</span> max_length]</span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>            target_chunk <span class="op">=</span> token_ids[i <span class="op">+</span> <span class="dv">1</span>: i <span class="op">+</span> max_length <span class="op">+</span> <span class="dv">1</span>]</span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.input_ids.append(torch.tensor(input_chunk))</span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.target_ids.append(torch.tensor(target_chunk))</span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__len__</span>(<span class="va">self</span>): <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>.input_ids)</span>
+<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, idx): <span class="cf">return</span> <span class="va">self</span>.input_ids[idx], <span class="va">self</span>.target_ids[idx]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sliding Window</p>
+<p>Sliding window is a common algorithm used in computer science. This is best understood as an example. This <a href="https://stackoverflow.com/questions/8269916/what-is-sliding-window-algorithm-examples">stackoverflow answer</a> has diagrams, which are very easy to understand. It uses Javascript, but it is literally a range of values moving along like sliding a window in an array or a list.</p>
+</div>
+</div>
+<p>We will use <code>tiktoken</code> library to get an encoding from gpt2. We’ve pretty much looked at everything in this code except stride. <code>max_length</code> is the context size. <code>stride</code> is the number of tokens to skip when creating the next sequence. For example, if <code>max_length</code> is 4 and <code>stride</code> is 2, then the next sequence will start 2 tokens after the previous sequence. This is to avoid having the same sequence in the dataset multiple times. This is a common technique in NLP. It is called sliding window. It is also called sliding window attention. By avoiding the same sequence multiple times, we can reduce the size of the dataset. This is important because we want to use as much data as possible to train the model. It also reduces overfitting.</p>
+<div id="e9644831" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tiktoken</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="4210b59f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> GPTDatasetV1(raw_text, tiktoken.get_encoding(<span class="st">"gpt2"</span>), max_length<span class="op">=</span><span class="dv">10</span>, stride<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(ds)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>7</code></pre>
+</div>
+</div>
+<div id="b64d889d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_dataloader_v1(txt, batch_size<span class="op">=</span><span class="dv">4</span>, max_length<span class="op">=</span><span class="dv">256</span>, </span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>                         stride<span class="op">=</span><span class="dv">128</span>, shuffle<span class="op">=</span><span class="va">True</span>, drop_last<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>                         num_workers<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>    tokenizer <span class="op">=</span> tiktoken.get_encoding(<span class="st">"gpt2"</span>)</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> GPTDatasetV1(txt, tokenizer, max_length, stride)</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> DataLoader(</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>        dataset,</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>        batch_size<span class="op">=</span>batch_size,</span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>        shuffle<span class="op">=</span>shuffle,</span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>        drop_last<span class="op">=</span>drop_last,</span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a>        num_workers<span class="op">=</span>num_workers</span>
+<span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Dataloader returns x and y. Let’s take a look at what <code>stride</code> does in a dataloader. Here is a simple example of <code>batch_size</code> of 1 and stride 1.</p>
+<div id="36e6e5c3" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>dataloader <span class="op">=</span> create_dataloader_v1(raw_text, batch_size<span class="op">=</span><span class="dv">1</span>, max_length<span class="op">=</span><span class="dv">4</span>, stride<span class="op">=</span><span class="dv">1</span>, shuffle<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(<span class="bu">iter</span>(dataloader))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[tensor([[ 464, 3797, 3332,  319]]), tensor([[3797, 3332,  319,  262]])]</code></pre>
+</div>
+</div>
+<p>Let’s look at <code>batch_size</code> of 2. Both x and y are 2 sequences long. The first sequence is the same as the previous example. The second sequence is the next sequence in the text.</p>
+<div id="13cf44d3" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>dataloader <span class="op">=</span> create_dataloader_v1(raw_text, batch_size<span class="op">=</span><span class="dv">2</span>, max_length<span class="op">=</span><span class="dv">4</span>, stride<span class="op">=</span><span class="dv">1</span>, shuffle<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(<span class="bu">iter</span>(dataloader))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[tensor([[ 464, 3797, 3332,  319],
+         [3797, 3332,  319,  262]]),
+ tensor([[3797, 3332,  319,  262],
+         [3332,  319,  262, 2603]])]</code></pre>
+</div>
+</div>
+<p>When we increase the <code>stride</code> to 2, the second sequence is 2 tokens after the first sequence. This is because we skipped 2 tokens when creating the second sequence. Instead of starting the second x with 3797, we start with 3332.</p>
+<div id="fdf9c029" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>dataloader <span class="op">=</span> create_dataloader_v1(raw_text, batch_size<span class="op">=</span><span class="dv">2</span>, max_length<span class="op">=</span><span class="dv">4</span>, stride<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(<span class="bu">iter</span>(dataloader))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[tensor([[ 464, 3797, 3332,  319],
+         [3332,  319,  262, 2603]]),
+ tensor([[3797, 3332,  319,  262],
+         [ 319,  262, 2603,    0]])]</code></pre>
+</div>
+</div>
+<p>When we have the same <code>stride</code> and <code>max_length</code>, we can see that the second sequence is the same as the first sequence. This is because we skipped 4 tokens when creating the second sequence. Now, there is no overlap between the x sequences and y sequences.</p>
+<div id="4c730e59" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>dataloader <span class="op">=</span> create_dataloader_v1(raw_text, batch_size<span class="op">=</span><span class="dv">2</span>, max_length<span class="op">=</span><span class="dv">4</span>, stride<span class="op">=</span><span class="dv">4</span>, shuffle<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(<span class="bu">iter</span>(dataloader))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[tensor([[ 464, 3797, 3332,  319],
+         [ 262, 2603,    0, 1375]]),
+ tensor([[3797, 3332,  319,  262],
+         [2603,    0, 1375, 2497]])]</code></pre>
+</div>
+</div>
+<p>Note that we also have <code>drop_last</code> parameter. This is to drop the last batch if it is smaller than <code>batch_size</code>. This is important during training because it can cause loss spikes.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Smooth Training</p>
+<p>When training, it is important to keep the loss go down smoothly. If the loss spikes up, it may not come down, and the model has to be trained again from the start. Using <code>drop_last</code> parameter when training helps. There are also other ways to keep it from spiking, such as using bigger batch sizes and using a high quality data. Data could have particularly noisy and unclean gibberish. If these are concentrated in one batch, loss goes up to spike, and the training is over.</p>
+</div>
+</div>
+</section>
+<section id="what-are-embeddings" class="level2">
+<h2 class="anchored" data-anchor-id="what-are-embeddings">What Are Embeddings?</h2>
+<p>An embedding is a way to represent words or phrases as vectors of numbers. These vectors capture the semantic meaning of the words, allowing us to perform mathematical operations on them. For example, we can calculate the distance between two words to see how similar they are. Embeddings are used in many NLP tasks, such as machine translation, text classification, and question answering. They are also used in recommendation systems, image recognition, and other machine learning tasks. Embeddings are a powerful tool for understanding and processing text data.</p>
+<p>For example, in this space: - “Cat” and “dog” might be close together because they’re both pets - “Run” and “sprint” would be nearby as they’re similar actions - “Hot” might be positioned opposite to “cold” - “King”, “queen”, “prince”, and “princess” would form a cluster showing both their royal relationships and gender differences</p>
+<p>In modern LLMs like GPT-2, each token (word or subword) is represented by a vector of 768 numbers, while larger models like GPT-3 use even bigger vectors (2048 or more dimensions). These numbers aren’t randomly assigned - they’re learned during training to capture meaningful relationships between words.</p>
+<section id="why-do-we-need-embeddings" class="level3">
+<h3 class="anchored" data-anchor-id="why-do-we-need-embeddings">Why Do We Need Embeddings?</h3>
+<p>Traditional one-hot encoding represents each word as a vector of zeros with a single ‘1’, where the vector length equals vocabulary size. For a 50,000-word vocabulary, each word requires a 50,000-dimensional vector! This approach has several major problems:</p>
+<ol type="1">
+<li>Inefficiency:
+<ul>
+<li>Massive storage requirements</li>
+<li>Sparse representations (mostly zeros)</li>
+<li>Computationally expensive to process</li>
+</ul></li>
+<li>No Semantic Information:
+<ul>
+<li>“cat” and “kitten” are as different as “cat” and “motorcycle”</li>
+<li>No way to measure word similarity</li>
+<li>No capture of analogies or relationships</li>
+</ul></li>
+</ol>
+<p>Embeddings solve these problems by: 1. Dense Representation: - Using much smaller vectors (768 vs 50,000 dimensions) - Every dimension carries meaningful information - Efficient storage and computation</p>
+<ol start="2" type="1">
+<li>Semantic Relationships:
+<ul>
+<li>Similar words have similar vectors</li>
+<li>Enable amazing arithmetic: king - man + woman ≈ queen</li>
+<li>Capture multiple types of relationships:
+<ul>
+<li>Semantic (car/automobile)</li>
+<li>Syntactic (run/running)</li>
+<li>Conceptual (France/Paris :: Japan/Tokyo)</li>
+</ul></li>
+</ul></li>
+<li>Learning and Adaptation:
+<ul>
+<li>Embeddings improve during model training</li>
+<li>Can capture domain-specific meanings</li>
+<li>Transfer learning from one task to another</li>
+</ul></li>
+<li>Mathematical Operations:
+<ul>
+<li>Calculate similarity using cosine distance</li>
+<li>Find analogies through vector arithmetic</li>
+<li>Cluster related concepts together</li>
+</ul></li>
+</ol>
+</section>
+<section id="embeddings-beyond-language-models" class="level3">
+<h3 class="anchored" data-anchor-id="embeddings-beyond-language-models">Embeddings Beyond Language Models</h3>
+<p>The power of embeddings extends far beyond just processing text. The same fundamental concept - representing complex objects as dense vectors in high-dimensional space - has revolutionized many fields:</p>
+<ol type="1">
+<li>Recommendation Systems:
+<ul>
+<li>Netflix maps both users and movies into the same embedding space</li>
+<li>User embeddings capture viewing preferences and habits</li>
+<li>Movie embeddings represent genre, style, mood, and other features</li>
+<li>Similarity between vectors predicts what you might like to watch</li>
+<li>Even time-of-day and viewing context can be embedded</li>
+</ul></li>
+<li>Computer Vision:
+<ul>
+<li>Images are embedded into high-dimensional spaces</li>
+<li>Similar images cluster together automatically</li>
+<li>Enables powerful features like:
+<ul>
+<li>Face recognition</li>
+<li>Object detection</li>
+<li>Image similarity search</li>
+<li>Style transfer</li>
+</ul></li>
+<li>Transfer learning from pre-trained vision models</li>
+</ul></li>
+<li>Bioinformatics:
+<ul>
+<li>Protein sequences represented as embeddings</li>
+<li>Captures complex biochemical properties</li>
+<li>Predicts protein folding and interactions</li>
+<li>Helps in drug discovery</li>
+<li>Enables rapid searching of similar compounds</li>
+</ul></li>
+<li>Audio Processing:
+<ul>
+<li>Spotify embeds songs based on:
+<ul>
+<li>Musical features (tempo, key, instruments)</li>
+<li>Listening patterns</li>
+<li>Cultural context</li>
+<li>User behavior</li>
+</ul></li>
+<li>Voice recognition systems use embeddings</li>
+<li>Sound classification and similarity detection</li>
+</ul></li>
+<li>Graph Networks:
+<ul>
+<li>Social networks embed users and relationships</li>
+<li>Knowledge graphs embed concepts and connections</li>
+<li>Traffic networks embed locations and routes</li>
+<li>Fraud detection systems embed transaction patterns</li>
+</ul></li>
+</ol>
+</section>
+<section id="creating-embeddings-in-practice" class="level3">
+<h3 class="anchored" data-anchor-id="creating-embeddings-in-practice">Creating Embeddings in Practice</h3>
+<p>Creating embeddings involves several key components and considerations:</p>
+<ol type="1">
+<li>The Embedding Layer:</li>
+</ol>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>embedding_dim <span class="op">=</span> <span class="dv">768</span>  <span class="co"># typical size</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>vocab_size <span class="op">=</span> <span class="dv">50257</span>  <span class="co"># GPT-2 vocabulary size</span></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>embedding_layer <span class="op">=</span> nn.Embedding(vocab_size, embedding_dim)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ol start="2" type="1">
+<li>Initialization Strategies:
+<ul>
+<li>Random initialization</li>
+<li>Pre-trained embeddings (Word2Vec, GloVe)</li>
+<li>Xavier/Glorot initialization</li>
+<li>Custom initialization based on domain knowledge</li>
+</ul></li>
+<li>Training Approaches:
+<ul>
+<li>End-to-end with model</li>
+<li>Separate pre-training</li>
+<li>Fine-tuning existing embeddings</li>
+<li>Frozen pre-trained embeddings</li>
+</ul></li>
+<li>Advanced Techniques:
+<ul>
+<li>Subword tokenization</li>
+<li>Contextual embeddings</li>
+<li>Multi-modal embeddings</li>
+<li>Hierarchical embeddings</li>
+</ul></li>
+</ol>
+</section>
+<section id="the-position-problem" class="level3">
+<h3 class="anchored" data-anchor-id="the-position-problem">The Position Problem</h3>
+<p>Position information is crucial in language understanding, but transformers are inherently position-agnostic. Here’s how we solve this:</p>
+<ol type="1">
+<li>Learned Positional Embeddings:
+<ul>
+<li>Model learns position representations</li>
+<li>Can capture common patterns</li>
+<li>More flexible but needs training</li>
+<li>Used in models like GPT</li>
+</ul></li>
+<li>Sinusoidal Embeddings:
+<ul>
+<li>Fixed mathematical patterns</li>
+<li>Uses sine and cosine functions</li>
+<li>Different frequencies for different dimensions</li>
+<li>Original transformer approach</li>
+<li>No training required</li>
+<li>Can extrapolate to longer sequences</li>
+</ul></li>
+<li>Relative Positional Embeddings:
+<ul>
+<li>Encode relative distances between tokens</li>
+<li>Better for certain tasks</li>
+<li>More computationally intensive</li>
+<li>Used in modern architectures like T5</li>
+</ul></li>
+<li>Hybrid Approaches:
+<ul>
+<li>Combining different types</li>
+<li>Task-specific adaptations</li>
+<li>Novel architectural innovations</li>
+</ul></li>
+</ol>
+</section>
+<section id="trade-offs-and-challenges" class="level3">
+<h3 class="anchored" data-anchor-id="trade-offs-and-challenges">Trade-offs and Challenges</h3>
+<p>The use of embeddings, while powerful, comes with important considerations and challenges:</p>
+<ol type="1">
+<li>Training Data Requirements:
+<ul>
+<li>Need massive amounts of quality data</li>
+<li>Data must be representative and balanced</li>
+<li>Domain-specific data often required</li>
+<li>Poor quality data leads to poor embeddings</li>
+<li>Data cleaning and preprocessing crucial</li>
+</ul></li>
+<li>Computational Costs:
+<ul>
+<li>Training embeddings is resource-intensive</li>
+<li>Large memory requirements</li>
+<li>GPU/TPU hardware often necessary</li>
+<li>Inference time can be significant</li>
+<li>Storage costs for large embedding tables</li>
+</ul></li>
+<li>Bias and Fairness:
+<ul>
+<li>Embeddings inherit biases from training data</li>
+<li>Can amplify societal prejudices</li>
+<li>Gender, racial, and cultural biases common</li>
+<li>Debiasing techniques available but imperfect</li>
+<li>Ethical considerations in deployment</li>
+</ul></li>
+<li>Technical Challenges:
+<ul>
+<li>Choosing optimal embedding dimension</li>
+<li>Handling out-of-vocabulary words</li>
+<li>Dealing with rare words/tokens</li>
+<li>Managing embedding table size</li>
+<li>Updating embeddings efficiently</li>
+</ul></li>
+<li>Performance Trade-offs:
+<ul>
+<li>Accuracy vs.&nbsp;computation speed</li>
+<li>Memory usage vs.&nbsp;embedding size</li>
+<li>Training time vs.&nbsp;model quality</li>
+<li>Generalization vs.&nbsp;specialization</li>
+<li>Real-time requirements vs.&nbsp;model complexity</li>
+</ul></li>
+</ol>
+</section>
+</section>
+<section id="the-future-of-embeddings" class="level2">
+<h2 class="anchored" data-anchor-id="the-future-of-embeddings">The Future of Embeddings</h2>
+<ol type="1">
+<li>Architectural Innovations:
+<ul>
+<li>More efficient embedding architectures</li>
+<li>Sparse embedding techniques</li>
+<li>Dynamic embedding sizes</li>
+<li>Adaptive embedding strategies</li>
+<li>Novel initialization methods</li>
+</ul></li>
+<li>Multi-modal Developments:
+<ul>
+<li>Cross-modal embeddings</li>
+<li>Universal embeddings across domains</li>
+<li>Joint learning of different modalities</li>
+<li>Transfer learning improvements</li>
+<li>Domain adaptation techniques</li>
+</ul></li>
+<li>Efficiency Improvements:
+<ul>
+<li>Compression techniques</li>
+<li>Quantization methods</li>
+<li>Pruning strategies</li>
+<li>Distributed embedding systems</li>
+<li>Hardware-specific optimizations</li>
+</ul></li>
+<li>Ethical Considerations:
+<ul>
+<li>Better debiasing techniques</li>
+<li>Fairness-aware embeddings</li>
+<li>Interpretable embeddings</li>
+<li>Privacy-preserving methods</li>
+<li>Robust evaluation metrics</li>
+</ul></li>
+<li>Emerging Applications:
+<ul>
+<li>Quantum computing embeddings</li>
+<li>Neuromorphic hardware adaptation</li>
+<li>Edge device implementations</li>
+<li>Real-time embedding updates</li>
+<li>Federated learning approaches</li>
+</ul></li>
+<li>Research Directions:
+<ul>
+<li>Theoretical understanding improvements</li>
+<li>Formal mathematical frameworks</li>
+<li>Stability and robustness studies</li>
+<li>Scaling laws investigation</li>
+<li>Novel training objectives</li>
+</ul></li>
+</ol>
+<p>The field of embeddings continues to be a crucial area of research and development in machine learning, with new breakthroughs and applications emerging regularly. As we better understand their properties and capabilities, we can expect to see even more innovative uses across various domains.</p>
+<p>To learn more about embeddings, please refer to the following resources: - Google’s tutorial on word embeddings, document search, and applications: https://github.com/google/generative-ai-docs/tree/main/site/en/gemini-api/tutorials</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Word Embeddings Size</p>
+<p>Word embeddings size with multiples of 64 have hardware optimization.</p>
+</div>
+</div>
+<section id="using-embeddings" class="level3">
+<h3 class="anchored" data-anchor-id="using-embeddings">Using Embeddings</h3>
+<p>Let’s create embeddings with pytorch. We will use a simple example.</p>
+<div id="e8d771d1" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>token_ids <span class="op">=</span> torch.tensor([<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">0</span>])</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>token_ids</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([2, 1, 0])</code></pre>
+</div>
+</div>
+<div id="ede85e1c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>vocab_size <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>output_dim <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">42</span>)</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>emb <span class="op">=</span> torch.nn.Embedding(vocab_size, output_dim)</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>emb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>Embedding(3, 4)</code></pre>
+</div>
+</div>
+<div id="6e66800f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>emb.weight</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>Parameter containing:
+tensor([[ 0.3367,  0.1288,  0.2345,  0.2303],
+        [-1.1229, -0.1863,  2.2082, -0.6380],
+        [ 0.4617,  0.2674,  0.5349,  0.8094]], requires_grad=True)</code></pre>
+</div>
+</div>
+<p>An embedding layer has weights defined by the vocab size and the output dimension. The weights are normally distributed with mean of 0 and standard deviation of 1. These weights are learnable parameters. With these embedding layer, we can convert the token ids into embeddings by simply calling the embedding layer with the token ids.</p>
+<div id="2a31c634" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First embedding</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>emb(torch.tensor([<span class="dv">0</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[0.3367, 0.1288, 0.2345, 0.2303]], grad_fn=&lt;EmbeddingBackward0&gt;)</code></pre>
+</div>
+</div>
+<div id="1661deb3" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Second embedding</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>emb(torch.tensor([<span class="dv">1</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[-1.1229, -0.1863,  2.2082, -0.6380]], grad_fn=&lt;EmbeddingBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>We can also simply select using an index.</p>
+<div id="21b0e21b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>emb.weight[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([0.3367, 0.1288, 0.2345, 0.2303], grad_fn=&lt;SelectBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>Or we can select multiple embeddings at once in whatever order we want.</p>
+<div id="d29c0948" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>emb(torch.tensor([<span class="dv">1</span>,<span class="dv">0</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[-1.1229, -0.1863,  2.2082, -0.6380],
+        [ 0.3367,  0.1288,  0.2345,  0.2303]], grad_fn=&lt;EmbeddingBackward0&gt;)</code></pre>
+</div>
+</div>
+<div id="a874fc05" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>emb(token_ids)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[ 0.4617,  0.2674,  0.5349,  0.8094],
+        [-1.1229, -0.1863,  2.2082, -0.6380],
+        [ 0.3367,  0.1288,  0.2345,  0.2303]], grad_fn=&lt;EmbeddingBackward0&gt;)</code></pre>
+</div>
+</div>
+<section id="one-hot-encoding" class="level4">
+<h4 class="anchored" data-anchor-id="one-hot-encoding">One-hot encoding</h4>
+<p>An older way to do this is using one hot encoding.</p>
+<p>We can manually do one hot encoding</p>
+<div id="5bda1bf3" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> torch.nn.Parameter(emb.weight)</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>params</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>Parameter containing:
+tensor([[ 0.3367,  0.1288,  0.2345,  0.2303],
+        [-1.1229, -0.1863,  2.2082, -0.6380],
+        [ 0.4617,  0.2674,  0.5349,  0.8094]], requires_grad=True)</code></pre>
+</div>
+</div>
+<div id="57e9ab3b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>onehot <span class="op">=</span> torch.nn.functional.one_hot(token_ids)</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>onehot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[0, 0, 1],
+        [0, 1, 0],
+        [1, 0, 0]])</code></pre>
+</div>
+</div>
+<div id="e03d3283" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>onehot.<span class="bu">float</span>()<span class="op">@</span>params</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[ 0.4617,  0.2674,  0.5349,  0.8094],
+        [-1.1229, -0.1863,  2.2082, -0.6380],
+        [ 0.3367,  0.1288,  0.2345,  0.2303]], grad_fn=&lt;MmBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>We can also use a linear layer</p>
+<div id="af8f0c15" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>linear <span class="op">=</span> torch.nn.Linear(vocab_size, output_dim, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>linear.weight <span class="op">=</span> torch.nn.Parameter(emb.weight.T)</span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a>linear.weight</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>Parameter containing:
+tensor([[ 0.3367, -1.1229,  0.4617],
+        [ 0.1288, -0.1863,  0.2674],
+        [ 0.2345,  2.2082,  0.5349],
+        [ 0.2303, -0.6380,  0.8094]], requires_grad=True)</code></pre>
+</div>
+</div>
+<div id="711160fc" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>linear(onehot.<span class="bu">float</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[ 0.4617,  0.2674,  0.5349,  0.8094],
+        [-1.1229, -0.1863,  2.2082, -0.6380],
+        [ 0.3367,  0.1288,  0.2345,  0.2303]], grad_fn=&lt;MmBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>Using <code>torch.nn.Embedding</code> is the most efficient way to convert token ids into embeddings. It’s faster and more memory-efficient than using one-hot encoding or a linear layer.</p>
+</section>
+</section>
+<section id="positional-embeddings" class="level3">
+<h3 class="anchored" data-anchor-id="positional-embeddings">Positional Embeddings</h3>
+<p>Positional embeddings are added to the token embeddings to encode the position of the token in the sequence. This is because transformers do not have any inherent sense of order. There are two main types of positional embeddings: relative positional embeddings and absolute positional embeddings.</p>
+<ul>
+<li>Relative positional embeddings</li>
+</ul>
+<p>Relative positional embeddings encode the distance between tokens. This is useful because the model can learn to pay attention to tokens that are close to each other. However, relative positional embeddings are not as efficient as absolute positional embeddings.</p>
+<ul>
+<li>Absolute positional embeddings</li>
+</ul>
+<p>Absolute positional embeddings encode the absolute position of the token in the sequence. This is useful because the model can learn to pay attention to tokens that are in certain positions. However, absolute positional embeddings are not as flexible as relative positional embeddings. It can be difficult to change the size of the context length of the model because it was fixed during the training.</p>
+<p>Usually, these embeddings are added to the token embeddings. <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/18.webp" width="500px"></p>
+<p>Let’s create absolute positional embeddings for simplicity. GPT-2 also used this. We have <code>token_ids</code> and <code>emb</code> from before.</p>
+<div id="dbf93160" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>token_ids</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([2, 1, 0])</code></pre>
+</div>
+</div>
+<div id="5b53b890" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>emb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>Embedding(3, 4)</code></pre>
+</div>
+</div>
+<p>Let’s get token embeddings again.</p>
+<div id="f818307d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>token_emb <span class="op">=</span> emb(token_ids)</span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>token_emb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[ 0.4617,  0.2674,  0.5349,  0.8094],
+        [-1.1229, -0.1863,  2.2082, -0.6380],
+        [ 0.3367,  0.1288,  0.2345,  0.2303]], grad_fn=&lt;EmbeddingBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>Positional embedding is another embedding layer with the same output dimension as the token embedding layer. The input dimension is the context length. The context length is the maximum length of the sequence that the model can handle. In this case, we will use a context length of 3. And output size is 4. Since vocab size and output size are the same, we can use the same embedding layer for both token and positional embeddings.</p>
+<div id="dff87ae0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>emb2 <span class="op">=</span> torch.nn.Embedding(<span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>emb2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>Embedding(3, 4)</code></pre>
+</div>
+</div>
+<div id="94dc3014" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>pos_emb <span class="op">=</span> emb2(torch.arange(<span class="dv">3</span>))</span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>pos_emb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[-0.7658, -0.7506,  1.3525,  0.6863],
+        [-0.3278,  0.7950,  0.2815,  0.0562],
+        [ 0.5227, -0.2384, -0.0499,  0.5263]], grad_fn=&lt;EmbeddingBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>Finally, we can get the input embedding for the model by adding the token embeddings and the positional embeddings.</p>
+<div id="6a17fab6" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>inp_emb <span class="op">=</span> token_emb <span class="op">+</span> pos_emb</span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>inp_emb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>tensor([[-0.3042, -0.4833,  1.8875,  1.4957],
+        [-1.4506,  0.6086,  2.4897, -0.5818],
+        [ 0.8594, -0.1095,  0.1846,  0.7567]], grad_fn=&lt;AddBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>To learn more about positional embeddings, please refer to the following resources: - A blog on Rotary Position Encoding (ROPE) by Akash Nain: https://aakashkumarnain.github.io/posts/ml_dl_concepts/rope - Reformer paper: https://arxiv.org/pdf/2104.09864</p>
+</section>
+</section>
+<section id="byte-pair-encoding-bpe" class="level2">
+<h2 class="anchored" data-anchor-id="byte-pair-encoding-bpe">Byte pair encoding (BPE)</h2>
+<p>Byte pair encoding (BPE) is a data compression technique that is used to create a vocabulary of subword units. It was a bit confusing for me to understand this because I didn’t know about bytes, hexdecimal, ASCII, and UTF-8. We can just think of byte as a tiny thing that makes up a character. The algorithm is very simple. It works by iteratively merging the most frequent pair of bytes in the text. This process is repeated until the desired vocabulary size is reached. The resulting vocabulary consists of the most frequent subword units in the text.</p>
+<p>The book does not cover details of BPE, but <a href="https://github.com/rasbt/LLMs-from-scratch/tree/main/ch02/05_bpe-from-scratch">bpe-from-scratch</a> is included in the github. This version focuses on education purposes and skips some steps, such as converting the text into bytes. To learn more about bpe, I recommend <a href="https://github.com/karpathy/minbpe"><code>minbpe</code></a> by Karpathy. The code has many comments and is easy to understand.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>What are bytes, hexadecimal, ASCII, and UTF-8? And what do they have to do with BPE?</p>
+<p>It is not necessary to know those concepts to understand how BPE works in a big picture. However, I had a lot of fun learning about these. And it gives a bit more in depth understanding of BPE and computers.</p>
+<p>Briefly, a byte is eight bits, and each bit is a number consists of 0 or 1. For instance, “00000000” and “10101100” are bytes. There are <code>2**8</code> or 256 ways of creatinga byte. Instead of writing eight characters long for each byte, we can use hexadecimal to write two characters for each byte. In simple terms, ASCII is an old way to convert or convert back a byte into a character and only has characters on english keyboard, such as english alphabet, numbers, +, -, etc. UTF-8 is modern way that includes characters from other languages and emojis. Using hexadecimal is useful because UTF-8 uses multiple bytes.</p>
+</div>
+</div>
+<section id="how-bpe-works" class="level3">
+<h3 class="anchored" data-anchor-id="how-bpe-works">How BPE works</h3>
+<p>Briefly, this is how to train BPE:</p>
+<ol type="1">
+<li>Vocabulary is initialized with first 256 ASCII characters.</li>
+<li>Text is converted into bytes.</li>
+<li>Until vocabulary size is reached:
+<ul>
+<li>Count the frequency of each pair of bytes in the text.</li>
+<li>Merge the most frequent pair of bytes into a single byte.</li>
+<li>Add the new byte to the vocabulary.</li>
+</ul></li>
+</ol>
+<p>That’s it. BPE is a simple and effective way to create a vocabulary of subword units. It is used in many NLP models, including GPT-2, GPT-3, and BERT. I was planning on explaining BPE in more detail, but I think it is better to leave it as an exercise for the reader. Maybe I will write a blog on it in the future with some information about bytes, hexadecimal digits, ASCII, UTF-8, and such. Of course it is not necessary to understand BPE, but they are related and are fun to learn about.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/galopyz\.github\.io\/delicious-nbdev");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="galopyz/delicious-nbdev" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/galopyz/delicious-nbdev/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

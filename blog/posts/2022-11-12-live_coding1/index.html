@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="galopy">
+<meta name="dcterms.date" content="2022-11-12">
+
+<title>Live coding 1 – delicious-nbdev</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-a31b994c8e6b22d286c5759f252fa97b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
+<meta property="og:title" content="Live coding 1 – delicious-nbdev">
+<meta property="og:description" content="Just one more bite…">
+<meta property="og:image" content="https://galopyz.github.io/delicious-nbdev/blog/posts/2022-11-12-live_coding1/terminal.png">
+<meta property="og:site_name" content="delicious-nbdev">
+<meta property="og:image:height" content="275">
+<meta property="og:image:width" content="725">
+<meta name="twitter:title" content="Live coding 1 – delicious-nbdev">
+<meta name="twitter:description" content="Just one more bite…">
+<meta name="twitter:image" content="https://galopyz.github.io/delicious-nbdev/blog/posts/2022-11-12-live_coding1/terminal.png">
+<meta name="twitter:image-height" content="275">
+<meta name="twitter:image-width" content="725">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">delicious-nbdev</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../blog/index.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/galopyz/delicious-nbdev"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Blog</li><li class="breadcrumb-item"><a href="../../../blog/posts/2022-11-12-live_coding1/index.html">Live coding 1</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Blog</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+ <span class="menu-text">blog/posts/2026-01-12-building_llm_agent/index.ipynb</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-10-26-why-build-llm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Why Build a Language Model from Scratch?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-09-28-kv_cache/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HuggingFace KV cache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-09-21-meselson-stahl/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Meselson-Stahl Experiment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-08-21-my-experience-with-solveit/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">My experience with solveit</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-07-17-pass@k/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">What is pass@k evaluation metric?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-07-05-gemini_tutorial/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beginner’s guide to gemini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-06-03-instruct_gpt/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How InstructGPT is trained</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-23-bllms_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Building LLM part2-Processing Text</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-14-bllms_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Building LLM part1-Intro_to_LLMs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-02-09-computational_biology/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A Student’s Perspective on Computational Biology</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2025-01-17-how_to_solve_it/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to solve it</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2024-01-16-Resnet_part2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resnet Part2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2024-01-13-MiniAI_utilities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniAI Utilities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-12-04-Resnet/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resnet</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-11-17-Scheduler/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduler</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-11-06-Optimizer/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Optimizer</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-10-19-Initialization_part_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialization part 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-10-10-Initialization_part_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialization part 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-26-Pytorch_Hooks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Pytorch Hooks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-23-Convolutions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Convolutional Neural Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-09-09-Learner_part_2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learner Pt.2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-08-30-Learner_part_1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learner Pt.1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-08-25-Callbacks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Callback</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-07-08-Hugging-Face-Features/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hugging Face Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-03-05-Fruit_Multi_pt2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fruit Multi-Classifier pt.2 Deployment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-03-05-Fruit_Multi_pt1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fruit Multi-Classifier pt.1 Training</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-25-MNIST_NN/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST Neural Nets</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-20-MNIST_base/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST base</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2023-02-19-MNIST_FastAI/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MNIST in FastAI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-07-saving_jupyter_config/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving Jupyter configuration on Paperspace.</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-06-paddy1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Intro to Paddy competition</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-12-03-live_coding7/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 7</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-30-live_coding6/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 6</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-27-live_coding5/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 5</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-16-live_coding4/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 4</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-15-live_coding3/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 3</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-14-live_coding2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Live coding 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-12-live_coding1/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Live coding 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-11-alien-vs.-ghost-pt2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alien vs.&nbsp;Ghost Pt.2 Deploying</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog/posts/2022-11-07-alien-vs.-ghost-pt1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Alien vs.&nbsp;Ghost Pt.1 Training</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#live-coding-1" id="toc-live-coding-1" class="nav-link active" data-scroll-target="#live-coding-1">Live coding 1</a>
+  <ul class="collapse">
+  <li><a href="#terminal" id="toc-terminal" class="nav-link" data-scroll-target="#terminal">Terminal</a>
+  <ul class="collapse">
+  <li><a href="#man-command" id="toc-man-command" class="nav-link" data-scroll-target="#man-command"><code>man</code> command</a></li>
+  <li><a href="#pwd-print-working-directory-command" id="toc-pwd-print-working-directory-command" class="nav-link" data-scroll-target="#pwd-print-working-directory-command"><code>pwd</code> (print working directory) command</a></li>
+  <li><a href="#mkdir-make-directory-command" id="toc-mkdir-make-directory-command" class="nav-link" data-scroll-target="#mkdir-make-directory-command"><code>mkdir</code> (make directory) command</a></li>
+  <li><a href="#cd-change-directory-command" id="toc-cd-change-directory-command" class="nav-link" data-scroll-target="#cd-change-directory-command"><code>cd</code> (change directory) command</a></li>
+  <li><a href="#others-useful-tips" id="toc-others-useful-tips" class="nav-link" data-scroll-target="#others-useful-tips">Others useful tips</a></li>
+  </ul></li>
+  <li><a href="#installing-python" id="toc-installing-python" class="nav-link" data-scroll-target="#installing-python">Installing python</a></li>
+  <li><a href="#installing-jupyterlab" id="toc-installing-jupyterlab" class="nav-link" data-scroll-target="#installing-jupyterlab">Installing Jupyterlab</a></li>
+  <li><a href="#installing-pytorch" id="toc-installing-pytorch" class="nav-link" data-scroll-target="#installing-pytorch">Installing Pytorch</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/galopyz/delicious-nbdev/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Blog</li><li class="breadcrumb-item"><a href="../../../blog/posts/2022-11-12-live_coding1/index.html">Live coding 1</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Live coding 1</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>galopy </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 12, 2022</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="live-coding-1" class="level1">
+<h1>Live coding 1</h1>
+<p>This is a blog based on Jeremy Howard’s Youtube video on <a href="https://www.youtube.com/watch?v=56sIyFjihEc&amp;ab_channel=JeremyHoward">Live coding 1</a>. Here, we will learn how to use terminal, install python the right way, and install packages using conda/mamba.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Required knowledge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Anybody with basic python knowledge can follow along the <a href="https://www.youtube.com/watch?v=56sIyFjihEc&amp;ab_channel=JeremyHoward">Youtube video</a> and/or this blog. I recommend you to follow along if you are not familiar with anything in this article.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>System requirements
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Computers running Windows, Mac, and Linux can follow along. Chromebooks may work, but there may be many problems along the way.</li>
+<li>Computers do not have to have GPUs.</li>
+</ul>
+</div>
+</div>
+<section id="terminal" class="level2">
+<h2 class="anchored" data-anchor-id="terminal">Terminal</h2>
+<p>What is a <a href="https://en.wikipedia.org/wiki/Computer_terminal">terminal</a>? A terminal is a device for entering an input to a computer. We type commands here, and the computer will give us output. It looks like this on my computer:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="terminal.png" title="terminal on linux" class="img-fluid figure-img"></p>
+<figcaption>A terminal on my linux.</figcaption>
+</figure>
+</div>
+<p>How to open a terminal? On Windows, you can download <a href="https://learn.microsoft.com/en-us/windows/wsl/about">WSL</a> (Windows Subsystem for Linux). This way, you are installing Linux distribution within Windows, and you can open it like any other app. On Mac or on Linux, you can search it on a search engine how to open it.</p>
+<p>Once you open it, you will see something close to my terminal. Inside of this terminal, a <a href="https://en.wikipedia.org/wiki/Shell_(computing)">shell</a> is running. The difference between terminal and shell is not important for us, and we will use these terms interchangeably.</p>
+<p>With a terminal, we can open up <a href="https://en.wikipedia.org/wiki/Directory_(computing)">directories</a> by typing commands, instead of clicking them in explorer or finder. Here, a directory is a container for files and directories. It’s also called a folder.</p>
+<p>Let’s try <code>ls</code> (list) command. Let’s type it in the terminal and press <code>Enter</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="ls1.png" class="img-fluid figure-img"></p>
+<figcaption>an output for ls command</figcaption>
+</figure>
+</div>
+<p>The computer will output directories or files in the current directory. You may have different output because you have different directories or folders. Cool thing about using commands this way is that we can also provide options. Let’s try typing <code>ls -a</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="ls-a.png" class="img-fluid figure-img"></p>
+<figcaption>An output for ls -a command</figcaption>
+</figure>
+</div>
+<p>What happened? There are more stuff now than before. What does <code>-a</code> do? This reveals ‘hidden’ files. Hidden files are files starting with .(dot). There are many other options associated with commands, which make commands very powerful. However, it also means more things to memorize and learn about! You may be wondering what’s the point of learning about all these? As we will find out later, using commands gives us many benefits, such as command history. With history, we can automate commands easily or find out what went wrong.</p>
+<p>Try <code>ls -ah</code>. It also lists file/directory sizes. Options can be used together. It could also be executed as <code>ls -a -h</code>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Although terminal has a learning curve, it can be a very useful tool because it can boost productivity. Let’s go over some tips.</p>
+</div>
+</div>
+<section id="man-command" class="level3">
+<h3 class="anchored" data-anchor-id="man-command"><code>man</code> command</h3>
+<p>How can we learn more about different commands?</p>
+<ul>
+<li><p>Search commands on a search engine: There are many resources online, but it may be a little tricky which one to trust.</p></li>
+<li><p>Use <code>man</code> command: <code>man</code> provides a manual for a command. It’s a simple and easy way to learn about a command.</p></li>
+</ul>
+<p>Let’s try using <code>man</code> itself.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="man1.png" class="img-fluid figure-img"></p>
+<figcaption>Using <code>man</code> by itself.</figcaption>
+</figure>
+</div>
+<p>That’s not very interesting because we did not provide what command we want to know about. We can find more about <code>man</code> itself!</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="man2.png" class="img-fluid figure-img"></p>
+<figcaption>Using <code>man</code> on <code>man</code></figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="man3.png" class="img-fluid figure-img"></p>
+<figcaption><code>man man</code> output</figcaption>
+</figure>
+</div>
+<p>It lists name, synopsis, description, examples, and others for the command. We can press <code>f</code> (forward) to scroll down, <code>b</code> (backward) to scroll up, and <code>q</code> (quit) to quit. Try other commands yourself, like <code>ls</code> that we just used.</p>
+<p>You may be overwhelmed by information it provides. Do not try to memorize every single option. There are just too many. You can use this if you forgot about something and quickly look it up. Or you can always search commands online.</p>
+</section>
+<section id="pwd-print-working-directory-command" class="level3">
+<h3 class="anchored" data-anchor-id="pwd-print-working-directory-command"><code>pwd</code> (print working directory) command</h3>
+<p><code>pwd</code> (print working directory) command prints out the current location. <code>/home/kappa</code> is same as <code>~</code>, and we refer it as home directory. <code>~</code> right before $ in <code>kappa@keepo:~$</code> also shows where I am located. It could have written <code>kappa@keepo:/home/kappa$</code>, which means the same thing.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="pwd.png" class="img-fluid figure-img"></p>
+<figcaption><code>pwd</code> output</figcaption>
+</figure>
+</div>
+</section>
+<section id="mkdir-make-directory-command" class="level3">
+<h3 class="anchored" data-anchor-id="mkdir-make-directory-command"><code>mkdir</code> (make directory) command</h3>
+<p><code>mkdir</code> (make directory) command makes a directory. We can execute <code>mkdir new_directory</code>, and it will be created. We can check it with <code>ls</code> command.</p>
+</section>
+<section id="cd-change-directory-command" class="level3">
+<h3 class="anchored" data-anchor-id="cd-change-directory-command"><code>cd</code> (change directory) command</h3>
+<p><code>cd</code> (change directory) command changes directory. We can execute <code>cd new_directory</code> to move into that new_directory. After changing directory, try <code>pwd</code>. To move one level up from current directory, do <code>cd ..</code>. <code>..</code> is a parent directory.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Using <code>Tab</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Here, instead of typing <code>cd new_directory</code>, I can type <code>cd new_</code> and press <code>Tab</code>. Rest of the directory name is automatically finished. If there are many directories starting with <code>new_</code>, it will not automatically complete the directory name because the computer doesn’t know which one I want. I can press <code>Tab</code> one more time, and the computer outputs with differnt options. I can type more characters and press <code>Tab</code> again until it completes.</p>
+</div>
+</div>
+<p><code>cd</code> can also be called by itself. It will change directory to home directory.</p>
+</section>
+<section id="others-useful-tips" class="level3">
+<h3 class="anchored" data-anchor-id="others-useful-tips">Others useful tips</h3>
+<p>There are some other useful shortcuts.</p>
+<ul>
+<li>!mk: run command starting with mk from command history.</li>
+<li>!!: run last command.</li>
+<li>Ctrl-r: reverse-i-search. Try typing commands that were used before.</li>
+<li>Ctrl-a: Move the cursor to the beginning.</li>
+<li>Ctrl-e: Move the cursor to the end.</li>
+<li>Ctrl-left_arrow: Move left word by word.</li>
+<li>Ctrl-right_arrow: Move right word by word.</li>
+</ul>
+<p>Make sure to try out the commands rather than just reading them over. Also, practice makes perfect!</p>
+</section>
+</section>
+<section id="installing-python" class="level2">
+<h2 class="anchored" data-anchor-id="installing-python">Installing python</h2>
+<p>Even on new computers, there is python already installed. However, we do not want to use this because this is for our computers to run programs related to operating system. We want to keep system python from our python because we can debug more easily.</p>
+<p>So, let’s learn how to install the right python. If you already have installed ipython, jupyter, pytorch, or anything like that, delete them. We will install from the scratch.</p>
+<p>If you have conda installed, you can remove it by using <code>rm -rf your_conda</code>. Then, restart your terminal so that you do not have <code>(base)</code> in the beginning of the prompt.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="remove_conda.png" class="img-fluid figure-img"></p>
+<figcaption>Removing conda</figcaption>
+</figure>
+</div>
+<p>Also, if you installed ipython or jupyter notebook using <code>apt</code> on Ubuntu or <code>brew</code> on Mac, uninstall them. When you type <code>ipython</code> or <code>jupyter notebook</code>, it should not work anymore.</p>
+<p>We will use <a href="https://github.com/conda-forge/miniforge">miniforge</a> to install conda. In readme, we can find Download section.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miniforge1.png" class="img-fluid figure-img"></p>
+<figcaption>Miniforge download</figcaption>
+</figure>
+</div>
+<p>Right click on the one that matches with your OS and architecture and right click on it. Then select ‘Copy link address’.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miniforge2.png" class="img-fluid figure-img"></p>
+<figcaption>Right click on Download</figcaption>
+</figure>
+</div>
+<p>I am using Linux with amd64 architecture. Next, let’s head back into our terminal and type <code>wget your_link</code> in my Downloads directory. You can paste your link into terminal with <code>Ctrl-Shift-V</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miniforge3.png" class="img-fluid figure-img"></p>
+<figcaption>Using wget</figcaption>
+</figure>
+</div>
+<p>Try using <code>ls</code> command. We now see that we have a file starting with Miniforge3-whatever. Pay attention to the end of the file. It ends with <code>.sh</code>. This means we can execute it using bash. This file consists of commands we type into the shell, such as <code>ls</code> and <code>pwd</code>. You can take a peak at the file by using <code>head Miniforge3-Linux-x86_64.sh</code>. So, we can execute it to install Miniforge by typing <code>bash Miniforge3-Linux-x86_64.sh</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miniforge4.png" class="img-fluid figure-img"></p>
+<figcaption>Execute the script</figcaption>
+</figure>
+</div>
+<p>It will start a Miniforge installation process. We press <code>Enter</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miniforge5.png" class="img-fluid figure-img"></p>
+<figcaption>Miniforge prompt1</figcaption>
+</figure>
+</div>
+<p>Type yes to agree to the license terms.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miniforge6.png" class="img-fluid figure-img"></p>
+<figcaption>Miniforge prompt2</figcaption>
+</figure>
+</div>
+<p>Then we press <code>Enter</code> to confirm the location.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miniforge7.png" class="img-fluid figure-img"></p>
+<figcaption>Miniforge prompt3</figcaption>
+</figure>
+</div>
+<p>Then type yes to initialize conda.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miniforge8.png" class="img-fluid figure-img"></p>
+<figcaption>Miniforge prompt4</figcaption>
+</figure>
+</div>
+<p>Now, we <strong>restart</strong> our terminal. We see we have ‘(base)’ in front the prompt line. It means we have conda running!</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miniforge9.png" class="img-fluid figure-img"></p>
+<figcaption>Conda is running!</figcaption>
+</figure>
+</div>
+<p>Try typing <code>which python</code>. It should be python inside of miniforge.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="mamba5.png" class="img-fluid figure-img"></p>
+<figcaption>mamba’s python</figcaption>
+</figure>
+</div>
+<p>Type conda, and we see something like a manual page for conda.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="conda.png" class="img-fluid figure-img"></p>
+<figcaption>conda help</figcaption>
+</figure>
+</div>
+<p>Let’s type mamba and see what we get. If you get the same output as conda, you are good. If you get this screen, we have some work to do.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="mamba1.png" class="img-fluid figure-img"></p>
+<figcaption>mamba not found</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>What is conda and mamba vs.&nbsp;pip?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We use conda to install python packages such as ipython, Jupyter notebook, and Pytorch. Mamba is just a faster version of conda. We can always replace mamba with conda for anything and get it done more quickly. Pip is also another way of installing packages, but not recommended because it does not install as smart as conda/mamba. It can cause headaches later on. So <strong>always install with conda/mamba</strong>.</p>
+</div>
+</div>
+<p>To install mamba, type <code>conda install mamba -n base -c conda-forge</code>. If mamba works, you can skip this installation steps.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="mamba2.png" class="img-fluid figure-img"></p>
+<figcaption>Installing mamba</figcaption>
+</figure>
+</div>
+<p>Conda checks for dependencies and figures out what needs to be installed and updated. We proceed with y.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="mamba3.png" class="img-fluid figure-img"></p>
+<figcaption>Installing mamba 2</figcaption>
+</figure>
+</div>
+<p>Try mamba. You should see this screen.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="mamba4.png" class="img-fluid figure-img"></p>
+<figcaption>Mamba installed</figcaption>
+</figure>
+</div>
+</section>
+<section id="installing-jupyterlab" class="level2">
+<h2 class="anchored" data-anchor-id="installing-jupyterlab">Installing Jupyterlab</h2>
+<p>It’s time to install Jupyterlab with <code>mamba install jupyterlab</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="jupyter1.png" class="img-fluid figure-img"></p>
+<figcaption>Installing jupyterlab</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="jupyter3.png" class="img-fluid figure-img"></p>
+<figcaption>Installing jupyterlab</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="jupyter2.png" class="img-fluid figure-img"></p>
+<figcaption>Installing jupyterlab in prompt1</figcaption>
+</figure>
+</div>
+<p>Pretty straight forward steps. mamba looks for dependencies, find out packages to update or install, and we confirm. Now we have Jupyterlab install. Let’s see what it does. Let’s try it with <code>jupyter notebook</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="jupyter4.png" class="img-fluid figure-img"></p>
+<figcaption>Executing Jupyter notebook</figcaption>
+</figure>
+</div>
+<p>It will automatically open up Jupyter notebook if you are on Mac or Linux. However, if you are on Windows, you have to hold Ctrl key and click on one of the links on the bottom of the output. To close Jupyter notebook, press <code>Ctrl-C</code> or <code>Ctrl-D</code>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you were thinking typing out <code>jupyter notebook</code> seems too long, there is a solution. Let’s shorten it to <code>jl</code>! Type <code>alias jl="jupyter notebook"</code>. Then, type <code>jl</code>. It is nice, but it will not work if we close the terminal and open it up later. So, we have to save it into <code>.bashrc</code> file in the home directory. Open the <code>~/.bashrc</code> file and add <code>alias jl="jupyter notebook"</code> at the end of the file. Now on, we can use <code>jl</code> shortcut even after restarting our terminal.</p>
+</div>
+</div>
+<p>We see something like this on the browser.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="jupyter5.png" class="img-fluid figure-img"></p>
+<figcaption>Jupyter notebook on the browser.</figcaption>
+</figure>
+</div>
+<p>On the top right, we can click New to create a new notebook or a folder. Create a Folder called nbs (for notebooks) and click on it to get inside of it.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="jupyter7.png" class="img-fluid figure-img"></p>
+<figcaption>Creating a new file or folder in Jupyter</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="jupyter6.png" class="img-fluid figure-img"></p>
+<figcaption>Inside of nbs folder</figcaption>
+</figure>
+</div>
+<p>Now, let’s create a new notebook. Click ‘New’ again and click Python 3 this time.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="jupyter8.png" class="img-fluid figure-img"></p>
+<figcaption>Jupyter notebook</figcaption>
+</figure>
+</div>
+<p>Click inside of a cell and type <code>1 + 1</code>. Then press Shift + Enter. The cell will be executed and show output on the bottom.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="jupyter9.png" class="img-fluid figure-img"></p>
+<figcaption>Jupyter notebook 2</figcaption>
+</figure>
+</div>
+<p>When you are typing in the cell, you are in Edit Mode. You can press <code>Esc</code> key to get out of it, and you are in Command Mode. Different mode has different command or shortcut you can use. You can press <code>h</code> to learn about them.</p>
+</section>
+<section id="installing-pytorch" class="level2">
+<h2 class="anchored" data-anchor-id="installing-pytorch">Installing Pytorch</h2>
+<p>Last thing we will install is <a href="https://pytorch.org/">Pytorch</a>. On the Pytorch page, we see this:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="pytorch1.png" class="img-fluid figure-img"></p>
+<figcaption>Install Pytorch</figcaption>
+</figure>
+</div>
+<p>You can pick and choose your options, such as OS or compute platform. Then, we can copy the command and execute it in our terminal. Remember to use mamba in the place of conda to get it started faster.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="pytorch2.png" class="img-fluid figure-img"></p>
+<figcaption>Install Pytorch using mamba</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>It takes a little while to install this time. In deep learning, there will be many times when we have to wait for the computer to execute programs, esepcially when training deep learning models. I recommend spending this time wisely. There are many things to do, such as reading ahead or practicing terminal commands. It doesn’t seem like a big deal, but it will make a huge difference later on.</p>
+</div>
+</div>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>We covered lots of materials in this blog. If you haven’t already, please watch <a href="https://www.youtube.com/watch?v=56sIyFjihEc&amp;t=3754s">Live coding 1</a> by Jeremy Howard because it will be very helpful. Also, practice terminal commands.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When learning something, it is great to learn with different medium or context. For instance, watching videos, reading books, and getting hands on will all boost your skills. Try out all different ways and be creative!</p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/galopyz\.github\.io\/delicious-nbdev");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="galopyz/delicious-nbdev" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/galopyz/delicious-nbdev/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

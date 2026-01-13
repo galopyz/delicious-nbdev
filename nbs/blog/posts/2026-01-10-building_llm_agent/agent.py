@@ -16,6 +16,7 @@ def mk_tool_def(fn):
                 "required": [p for p in params.keys() if params[p].default == inspect.Parameter.empty]
             }
         }
+
     }
 def mk_msg(m, role='user'): return {"role":role, "content":m}
 def mk_tool_res(m, tc_id): return mk_msg(m, role='tool') | {"tool_call_id": tc_id}
@@ -33,7 +34,6 @@ def _repr_markdown_(self):
     return (self.choices[0].message.content or '') + tool_info
 
 ModelResponse._repr_markdown_ = _repr_markdown_
-
 
 class Chat:
     def __init__(self, model, tools=None, sp=None):
@@ -55,7 +55,3 @@ def add_numbers(
 ) -> int:
     "Add two numbers together"
     return a + b
-
-model = "groq/openai/gpt-oss-20b"
-c = Chat(model, tools=[add_numbers])
-c("What is 3 + 7 + 11 - 3? Use tools")

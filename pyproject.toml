@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "delicious-nbdev"
+dynamic = ["version"]
+description = "Just one more bite..."
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "Apache-2.0"}
+authors = [{name = "Juhyun Suh", email = "shipalnomoo@gmail.com"}]
+keywords = ['nbdev', 'jupyter', 'notebook', 'python']
+classifiers = ["Natural Language :: English", "Intended Audience :: Developers", "Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3 :: Only"]
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/galopyz/delicious-nbdev"
+Documentation = "https://galopyz.github.io/delicious-nbdev"
+
+[project.entry-points.nbdev]
+delicious_nbdev = "delicious_nbdev._modidx:d"
+
+[tool.setuptools.dynamic]
+version = {attr = "delicious_nbdev.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["delicious_nbdev"]
+
+[tool.nbdev]
+put_version_in_init = false

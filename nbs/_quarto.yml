@@ -29,7 +29,8 @@ website:
       - auto: "/*.ipynb"
       - section: "Blog"
         contents:
-          - blog/posts/2026-01-12-building_llm_agent/index.ipynb
+          - blog/posts/2026-03-16-year_on_llms/index.ipynb
+          - blog/posts/2026-01-10-building_llm_agent/index.ipynb
           - blog/posts/2025-10-26-why-build-llm/index.ipynb
           - blog/posts/2025-09-28-kv_cache/index.ipynb
           - blog/posts/2025-09-21-meselson-stahl/index.ipynb
